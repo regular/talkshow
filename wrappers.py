@@ -129,6 +129,34 @@ class Text(Rect):
         self.label.draw()
         glPopMatrix()
 
+
+def flatten_rect(r):
+    ((x,y),(w,h)) = r
+    return (x,y,w,h)
+
+def rect_overlaps(r1, r2):
+    # check if r1 is completely outside of r2
+    # andreturn the inverse.
+    ((x1,y1),(w1,h1)) = r1
+    ((x2,y2),(w2,h2)) = r2
+    return not ((x1<x2 and x1+w1 <= x2 or x1>=x2+w2) or (y1<y2 and y1+h1 <= y2 or y1>=y2+h2))
+
+def clip_rect(r1, r2):
+    if rect_overlaps(r1, r2):
+        ((x1,y1),(w1,h1)) = r1
+        ((x2,y2),(w2,h2)) = r2
+
+        nx = max(x1, x2)
+        ny = max(y1, y2)
+
+        w = min(x1 + w1, x2 + w2) - nx
+        h = min(y1 + h1, y2 + h2) - ny
+
+        return ((nx, ny), (w, h))
+    else:
+        return ((0,0),(0,0))
+
+
 class ClippingContainer(Visible):
     instanceCount = 0
 
@@ -169,10 +197,13 @@ class ClippingContainer(Visible):
         scissor_was_enabled = glIsEnabled(GL_SCISSOR_TEST)
         
         old_scissor  = (GLint*4)();
+        r = ((int(s_x.value), int(s_y.value)), self.extent)
         if scissor_was_enabled:
             glGetIntegerv(GL_SCISSOR_BOX, old_scissor);
-
-        glScissor(int(s_x.value), int(s_y.value), self.w, self.h)
+            osr = (old_scissor[0:2], old_scissor[2:4])
+            r = clip_rect(r, osr)
+            
+        glScissor(*flatten_rect(r))
 
         glEnable(GL_SCISSOR_TEST)
 
