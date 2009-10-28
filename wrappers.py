@@ -61,6 +61,13 @@ class Visible(object):
     def _setExtent(self, value): self.w, self.h = value     
     extent = property(_getExtent, _setExtent)
 
+    def getScreenPosition(self):
+        if self.parent:
+            x, y = self.parent.getScreenPosition()
+            return (x + self.x, y +self.y)
+        else:
+            return self.position
+
     def draw(self):
         pass
 
@@ -133,12 +140,13 @@ class Text(Rect):
 class Group(Visible):
     instanceCount = 0
     
-    def __init__(self, p, name, x=0, y=0, w=10, h=10, ox=0, oy=0):
+    def __init__(self, p, name, x=0, y=0, w=10, h=10, ox=0, oy=0, clipChildren=True):
         Visible.__init__(self, p, name, x, y, w, h)
         
         self.__children__ = []
         self.ox = ox
         self.oy = oy
+        self.clipChildren = clipChildren
         
     def __addChild__(self, c):
         if not c in self.__children__:
@@ -152,7 +160,47 @@ class Group(Visible):
    
     def __len__(self):
         return len(self.__children__)
+
+    def draw(self):
+        if self.clipChildren:
+            self.drawClipped()
+        else:
+            self.drawUnclipped()
+    
+    def drawUnclipped(self):
+        glMatrixMode(gl.GL_MODELVIEW)
+        glPushMatrix()
+        glTranslatef(self.x, self.y, 0);
+        for x in self:
+            x.draw()
+        glPopMatrix()
+    
+    def drawClipped(self):
+        # get screen coordinates of lower left corner
+        x = self.x
+        y = self.y + self.h
+    
+        model_view_matrix = (GLdouble * 16)() 
+        projection_matrix = (GLdouble * 16)() 
+        viewport = (GLint * 4)() 
+        glGetDoublev(GL_MODELVIEW_MATRIX, model_view_matrix)
+        glGetDoublev(GL_PROJECTION_MATRIX, projection_matrix)
+        glGetIntegerv(GL_VIEWPORT, viewport)
+        s_x, s_y, s_z = GLdouble(), GLdouble(), GLdouble()
+    
+        gluProject(x, y, 0.0, model_view_matrix, projection_matrix, viewport, s_x, s_y, s_z)
+    
+        glScissor(int(s_x.value), int(s_y.value), self.w, self.h)
         
+        scissor_was_enabled = glIsEnabled(GL_SCISSOR_TEST)
+        
+        glEnable(GL_SCISSOR_TEST)
+        
+        self.drawUnclipped()
+
+        if not scissor_was_enabled:
+            glDisable(GL_SCISSOR_TEST)
+                               
 if __name__ == "__main__":
     # run some tests on Node hierarchy
     

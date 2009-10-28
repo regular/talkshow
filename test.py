@@ -8,10 +8,15 @@ window = pyglet.window.Window()
 
 rr = RoundRect(None, "name", 120, 20, 100, 100, color="#ff6e00")
 
-r = wrappers.Rect(None, "rect",  50, 50, 100,100, color = "#ff0000", opacity=0.5)
-t = wrappers.Text(None, "text", 50, 50, h=100, color="#ffff00", opacity=0.5, text="Tubfex")
+g = wrappers.Group(None, "Group", -50,-50, 500, 500, clipChildren=False)
+b = wrappers.Rect(g, "bg",  50, 50, 100,100, color = "#ffffff", opacity=0.5)
+r = wrappers.Rect(g, "rect",  50, 50, 100,500, color = "#ff0000", opacity=0.5)
+t = wrappers.Text(g, "text", 50, 50, h=r.h, color="#ffff00", opacity=0.5, text="Tubifex")
 r.w = t.w
+g.w = b.x + b.w + 1
+g.h = b.y + b.h + 1
 
+ 
 def on_resize(width, height):
     glViewport(0, 0, width, height)
     
@@ -34,8 +39,10 @@ def on_draw():
     glEnable(GL_BLEND)
   
     rr.draw()  
-    r.draw()
-    t.draw()
+    #r.draw()
+    #t.draw()
+    
+    g.draw()
     
     glDisable(GL_BLEND)
 
