@@ -4,7 +4,6 @@ import string
 import pyglet
 from pyglet.gl import *
 
-
 class Visible(object):
     instanceCount = 0
 
@@ -61,13 +60,6 @@ class Visible(object):
     def _setExtent(self, value): self.w, self.h = value     
     extent = property(_getExtent, _setExtent)
 
-    def getScreenPosition(self):
-        if self.parent:
-            x, y = self.parent.getScreenPosition()
-            return (x + self.x, y +self.y)
-        else:
-            return self.position
-
     def draw(self):
         pass
 
@@ -93,7 +85,7 @@ class Rect(Visible):
         )
 
     def mergeColorChannels(self, r,g,b):
-        return "#%2.2X%2.2X%2.2X" % (r,g,b)
+        return "#%2.2X%2.2X%2.2X" % (r*255,g*255,b*255)
 
     def _setCOLORFADE(self, cf):
         self._COLORFADE= cf
@@ -136,17 +128,67 @@ class Text(Rect):
         self.label.color = (int(self.r*255), int(self.g*255), int(self.b*255), int(self.opacity*255))
         self.label.draw()
         glPopMatrix()
-    
-class Group(Visible):
+
+class ClippingContainer(Visible):
+    instanceCount = 0
+
+    def __init__(self, p, name, x=0, y=0, w=10, h=10, ox=0, oy=0, clip=True):
+        Visible.__init__(self, p, name, x, y, w, h)
+        self.ox = ox
+        self.oy = oy
+        self.clip = clip
+
+    def _getOffset(self): return (self.ox, self.oy)
+    def _setOffset(self, value): self.ox, self.oy = value     
+    offset = property(_getOffset, _setOffset)
+
+    def draw(self):
+        if self.clip:
+            self.drawClipped()
+        else:
+            self.drawUnclipped()
+
+    def drawUnclipped(self):
+        pass
+
+    def drawClipped(self):
+        # get screen coordinates of lower left corner
+        x = self.x
+        y = self.y + self.h
+
+        model_view_matrix = (GLdouble * 16)() 
+        projection_matrix = (GLdouble * 16)() 
+        viewport = (GLint * 4)() 
+        glGetDoublev(GL_MODELVIEW_MATRIX, model_view_matrix)
+        glGetDoublev(GL_PROJECTION_MATRIX, projection_matrix)
+        glGetIntegerv(GL_VIEWPORT, viewport)
+        s_x, s_y, s_z = GLdouble(), GLdouble(), GLdouble()
+
+        gluProject(x, y, 0.0, model_view_matrix, projection_matrix, viewport, s_x, s_y, s_z)
+
+        scissor_was_enabled = glIsEnabled(GL_SCISSOR_TEST)
+        
+        old_scissor  = (GLint*4)();
+        if scissor_was_enabled:
+            glGetIntegerv(GL_SCISSOR_BOX, old_scissor);
+
+        glScissor(int(s_x.value), int(s_y.value), self.w, self.h)
+
+        glEnable(GL_SCISSOR_TEST)
+
+        self.drawUnclipped()
+
+        if not scissor_was_enabled:
+            glDisable(GL_SCISSOR_TEST)
+        else:
+            glScissor(old_scissor[0], old_scissor[1], old_scissor[2], old_scissor[3])
+                          
+class Group(ClippingContainer):
     instanceCount = 0
     
     def __init__(self, p, name, x=0, y=0, w=10, h=10, ox=0, oy=0, clipChildren=True):
-        Visible.__init__(self, p, name, x, y, w, h)
-        
+        ClippingContainer.__init__(self, p, name, x, y, w, h, ox, oy, clipChildren)     
         self.__children__ = []
-        self.ox = ox
-        self.oy = oy
-        self.clipChildren = clipChildren
         
     def __addChild__(self, c):
         if not c in self.__children__:
@@ -160,93 +202,130 @@ class Group(Visible):
    
     def __len__(self):
         return len(self.__children__)
-
-    def draw(self):
-        if self.clipChildren:
-            self.drawClipped()
-        else:
-            self.drawUnclipped()
-    
+     
     def drawUnclipped(self):
         glMatrixMode(gl.GL_MODELVIEW)
         glPushMatrix()
-        glTranslatef(self.x, self.y, 0);
+        glTranslatef(self.x - self.ox, self.y - self.oy, 0);
         for x in self:
             x.draw()
         glPopMatrix()
-    
-    def drawClipped(self):
-        # get screen coordinates of lower left corner
-        x = self.x
-        y = self.y + self.h
-    
-        model_view_matrix = (GLdouble * 16)() 
-        projection_matrix = (GLdouble * 16)() 
-        viewport = (GLint * 4)() 
-        glGetDoublev(GL_MODELVIEW_MATRIX, model_view_matrix)
-        glGetDoublev(GL_PROJECTION_MATRIX, projection_matrix)
-        glGetIntegerv(GL_VIEWPORT, viewport)
-        s_x, s_y, s_z = GLdouble(), GLdouble(), GLdouble()
-    
-        gluProject(x, y, 0.0, model_view_matrix, projection_matrix, viewport, s_x, s_y, s_z)
-    
-        glScissor(int(s_x.value), int(s_y.value), self.w, self.h)
-        
-        scissor_was_enabled = glIsEnabled(GL_SCISSOR_TEST)
-        
-        glEnable(GL_SCISSOR_TEST)
-        
-        self.drawUnclipped()
 
-        if not scissor_was_enabled:
-            glDisable(GL_SCISSOR_TEST)
-                               
+
+class Viewport(ClippingContainer):
+    instanceCount = 0
+
+    def __init__(self, p, name, x=0, y=0, w=10, h=10, ox=0, oy=0, world = None):
+        ClippingContainer.__init__(self, p, name, x, y, w, h, ox, oy, True)     
+        self.world = world 
+
+    def drawUnclipped(self):
+        if not self.world: return
+        glMatrixMode(gl.GL_MODELVIEW)
+        glPushMatrix()
+        glTranslatef(self.x - self.ox, self.y - self.oy, 0);
+        self.world.draw()
+        glPopMatrix()
+
+##
+# Regression Tests
+##
+import unittest
+from test import test_support
+
+class TestVisuals(unittest.TestCase):
+    # Only use setUp() and tearDown() if necessary
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+        
+    def test_Group(self):
+        v = Visible(None, "test1")
+        assert(Visible.instanceCount == 1)
+        assert(v.parent == None)
+        assert(getrefcount(v) == 2)
+        del v
+        assert(Visible.instanceCount == 0)
+
+        v = Visible(None, "test1")
+        assert(Visible.instanceCount == 1)
+        assert(v.parent == None)
+        assert(getrefcount(v) == 2)
+
+        g = Group(None, "group")
+        assert(Group.instanceCount == 1)
+        assert(Visible.instanceCount == 1)
+        assert(g.parent == None)
+        assert(len(g)==0)
+
+        v.parent = g
+        assert(getrefcount(v) == 3)
+        assert(g.parent == None)
+        assert(v.parent == g)
+        assert(len(g)==1)
+        for x in g: assert(x==v)
+
+        del v
+        for x in g: assert(getrefcount(x) == 3)
+
+        assert(Visible.instanceCount == 1)
+
+        for x in g: assert(x.parent==g)
+
+        for x in g: x.parent = None
+        del x
+        assert(len(g)==0)
+        assert(Visible.instanceCount == 0)
+        
+        g.ox=10
+        g.oy=20
+        assert(g.offset==(10,20))
+        g.offset = (20,40)
+        assert(g.ox==20)
+        assert(g.oy==40)
+
+    def test_color_properties(self):
+        r = Rect(None, "Rect")
+        r.color = "#ff7f00"
+        assert(r.r==1.0)
+        assert(r.g==0x7f/255.0)
+        assert(r.b==0)
+        r.b = 10/255.0
+        assert(r.color == "#FF7F0A")
+
+    def test_basic_properties(self):
+        r = Rect(None, "Rect")
+        r.x=10
+        r.y=20
+        assert(r.position==(10,20))
+        r.position = (20,40)
+        assert(r.x==20)
+        assert(r.y==40)
+        
+        r.w=10
+        r.h=20
+        assert(r.extent==(10,20))
+        r.extent = (20,40)
+        assert(r.w==20)
+        assert(r.h==40)
+        assert(r.contains(20,40)==True)
+        assert(r.contains(19,40)==False)
+        assert(r.contains(20,39)==False)
+        assert(r.contains(20+20,40+40)==False)
+        assert(r.contains(20+19,40+39)==True)
+
+
+def test_main():
+    test_support.run_unittest(
+        TestVisuals,
+        #... list other tests ...
+    )
+                 
 if __name__ == "__main__":
     # run some tests on Node hierarchy
+    test_main()
     
-    v = Visible(None, "test1")
-    assert(Visible.instanceCount == 1)
-    assert(v.parent == None)
-    assert(getrefcount(v) == 2)
-    del v
-    assert(Visible.instanceCount == 0)
-
-    v = Visible(None, "test1")
-    assert(Visible.instanceCount == 1)
-    assert(v.parent == None)
-    assert(getrefcount(v) == 2)
-    
-    g = Group(None, "group")
-    assert(Group.instanceCount == 1)
-    assert(Visible.instanceCount == 1)
-    assert(g.parent == None)
-    assert(len(g)==0)
-
-    v.parent = g
-    assert(getrefcount(v) == 3)
-    assert(g.parent == None)
-    assert(v.parent == g)
-    assert(len(g)==1)
-    for x in g: assert(x==v)
-    
-    del v
-    for x in g: assert(getrefcount(x) == 3)
-    
-    assert(Visible.instanceCount == 1)
-    
-    for x in g: assert(x.parent==g)
-    
-    for x in g: x.parent = None
-    del x
-    assert(len(g)==0)
-    assert(Visible.instanceCount == 0)
-    
-    # color
-    r = Rect(None, "Rect")
-    r.color = "#ff7f00"
-    assert(r.r==255)
-    assert(r.g==0x7f)
-    assert(r.b==0)
-    r.b = 10
-    assert(r.color == "#FF7F0A")
     
