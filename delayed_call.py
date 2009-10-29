@@ -4,6 +4,22 @@ import weakref
 class NoCookie: pass
 
 class DelayedCall:
+    
+    # In order to be able to cancel a scheduled function call
+    # we need to make sure to pass a unique callable to pyglet's
+    # scheduleXX() function. (in contrast to a single static function)
+    # However, since we want to have automatic unscheduling when
+    # a DelayedCall object gets out of scope, we cannot pass a strong
+    # reference to our DelayedCall object to scheduleXXX() (pyglet would
+    # keep its reference count from becoming zero)
+    # That's why we construct a unique Identifier object that
+    # simply forwards the scheduled call to a static method and passes
+    # the *weak* reference to our instance we passed to scheduleXXX()
+    # The static method _callme() acts like an instance method after having
+    # resolved the weak reference.
+    # THe Identifier instance can be used to cancel a specific instance
+    # of DelayedCall 
+    
     class Identifier:
         def __call__(self,delta,ref):
             DelayedCall._callme(ref)
