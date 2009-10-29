@@ -1,37 +1,51 @@
 import pyglet
+import weakref
 
 class NoCookie: pass
 
-class DelayedCall:        
+class DelayedCall:
+    class Identifier:
+        def __call__(self,delta,ref):
+            DelayedCall._callme(ref)
+            
     def __init__(self, func, delay, cookie = NoCookie, periodic = False):   
         self.periodic = periodic
         self.scheduled = False
+        self.cookie = cookie
+        self.identifier = DelayedCall.Identifier()
+        
         if func:
             if periodic:
                 if delay > 0:
-                    pyglet.clock.schedule_interval(self._callme, delay / 1000.0, cookie)
+                    pyglet.clock.schedule_interval(self.identifier, delay / 1000.0, weakref.ref(self))
                 else:
-                    pyglet.clock.schedule(self._callme, cookie)
+                    pyglet.clock.schedule(self.identifier, weakref.ref(self))
             else:
-                pyglet.clock.schedule_once(self._callme, delay / 1000.0, cookie)
+                pyglet.clock.schedule_once(self.identifier, delay / 1000.0, weakref.ref(self))
             self.func = func
             self.scheduled = True
    
-    def _callme(self, delta, cookie):
-        if cookie == NoCookie:
+    @staticmethod    
+    def _callme(ref):
+        self = ref()
+        if self == None:
+            return
+        
+        if self.cookie == NoCookie:
             result = self.func()
         else:
-            result = self.func(cookie)
+            result = self.func(self.cookie)
         
         if not self.periodic:
             self.scheduled = False
         else:
             if result != True:
                 self.cancel()
-        
+    
     def cancel(self):
         if self.scheduled:
-            pyglet.clock.unschedule(self._callme)
+            print "cancel!"
+            pyglet.clock.unschedule(self.identifier)
         self.scheduled = False
     
     def __del__(self):
@@ -92,11 +106,52 @@ class TestPeriodic(TestDelayedCall):
         pyglet.app.run()
         assert self.counter == 0
         
+class TestTwoCalls(TestDelayedCall):
+    def callme(self, cookie):
+        self.cookie = cookie
+        
+    def test_dc(self):
+        self.cookie = None
+        dc1 = DelayedCall(self.callme, 100, "huhu")
+        dc2 = DelayedCall(self.window.close, 200)
+        pyglet.app.run()
+        assert self.cookie == "huhu"
+
+class TestCancel1(TestDelayedCall):
+    def dontcallme(self, cookie):
+        print "DONT CALL ME I SAY!"
+        self.cookie = cookie
+
+    def test_dc(self):
+        self.cookie = None
+        dc1 = DelayedCall(self.dontcallme, 100, "huhu")
+        dc2 = DelayedCall(self.window.close, 200)
+        dc3 = DelayedCall(dc1.cancel, 50)
+        pyglet.app.run()
+        assert self.cookie == None
+ 
+ 
+class TestCancel2(TestDelayedCall):
+    def dontcallme(self, cookie):
+        print "DONT CALL ME I SAY!"
+        self.cookie = cookie
+
+    def test_dc(self):
+        self.cookie = None
+        dc1 = DelayedCall(self.dontcallme, 100, "huhu")
+        dc2 = DelayedCall(self.window.close, 200)
+        dc1 = None
+        pyglet.app.run()
+        assert self.cookie == None
+  
 def test_main():
     test_support.run_unittest(
         TestDelayedCall,
         TestEveryFrame,
-        TestPeriodic
+        TestPeriodic,
+        TestTwoCalls,
+        TestCancel1,
+        TestCancel2
         #... list other tests ...
     )
 
