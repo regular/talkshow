@@ -2,6 +2,7 @@ import math
 import pyglet
 import string
 import wrappers
+from pyglet.gl import *
 
 def getCapVertexCount(segment_count):
     return segment_count*2 + 3
@@ -79,17 +80,22 @@ class RoundRect(wrappers.Visible):
                 
         self.radius = radius
         self.outer_radius = outer_radius
+                
         self._reconstruct()
 
     def draw(self):
+        if self.extent != self.current_extent:
+            self._reconstruct()
+
+        glMatrixMode(gl.GL_MODELVIEW)
+        glPushMatrix()
+        glTranslatef(self.x, self.y + self.h, 0);
         self.mesh.draw(pyglet.gl.GL_TRIANGLES)
-    
-    def doLayout(self, new_w, new_h):        
-        #self.rect.extent = self.mesh.extent = new_w, new_h
-        self._reconstruct()
+        glPopMatrix()
                      
-    def _reconstruct(self):        
-        self._fillBuffers(self.x, self.y)
+    def _reconstruct(self):
+        self.current_extent = self.extent        
+        self._fillBuffers(0, 0)
 
     def _fillBuffers(self, x, y):
         segment_count = self.SEGMENT_COUNT

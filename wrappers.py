@@ -4,6 +4,7 @@ import string
 import pyglet
 from pyglet.gl import *
 from rect import *
+from animated_property import AnimatedProperty
 
 class Visible(object):
     instanceCount = 0
@@ -63,7 +64,16 @@ class Visible(object):
 
     def draw(self):
         pass
-
+            
+    def animate(self, propname, startvalue, endvalue, when, duration = 0, flags = 0):
+        if propname != "color":
+            AnimatedProperty.animate(self, propname, startvalue, endvalue, when, duration, flags)
+        else:
+            self._color_fade_value1 = startvalue
+            self._color_fade_value2 = endvalue
+            self._color_fade = 0.0
+            AnimatedProperty.animate(self, "_color_fade", 0.0, 1.0, when, duration, flags)
+    
 def splitColorChannels(c):
     return (
         string.atoi(c[1:3], 16) / 255.0,
@@ -147,7 +157,6 @@ class Screen(ColoredVisible):
             glEnable(GL_BLEND)
 
             for x in self.__children__:
-                print "draw ", x.name, x.position, x.extent
                 x.draw()
 
             glDisable(GL_BLEND)
