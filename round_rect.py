@@ -1,6 +1,7 @@
 import math
 import pyglet
 import string
+import wrappers
 
 def getCapVertexCount(segment_count):
     return segment_count*2 + 3
@@ -57,13 +58,13 @@ def createCap(angle, ox, oy, segment_count, radius, outer_radius, vb, ib, vi, ii
 
     return (vi, ii)
 
-class RoundRect(object):
+class RoundRect(wrappers.Visible):
     RADIUS = 10
     OUTER_RADIUS = 13
     SEGMENT_COUNT = 8
     
-    def __init__(self, parent, name, x, y, w, h, radius=RADIUS, outer_radius=OUTER_RADIUS, color="#ff6e00"):
-        self.x, self.y, self.w, self.h = x,y,w,h
+    def __init__(self, parent, name, x, y, w, h, radius=RADIUS, outer_radius=OUTER_RADIUS, color="#ff6e00"):                                     
+        wrappers.Visible.__init__(self, parent, name, x,y,w,h)
                                      
         vertex_count = 4 * getCapVertexCount(self.SEGMENT_COUNT)
         index_count = 7 * 2 * 3 + 4 * getCapIndexCount(self.SEGMENT_COUNT)
