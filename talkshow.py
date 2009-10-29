@@ -22,4 +22,10 @@ g.offset = (50, 50)
 
 vp = wrappers.Viewport(world, "viewport", 50,0, 200, 100, world = g)
 
+class MyHandler:
+    def onMouseMove(self, x, y):
+        print x, y
+
+screen.event_handler = MyHandler()
+
 pyglet.app.run()

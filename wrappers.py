@@ -123,6 +123,7 @@ class Screen(ColoredVisible):
         ColoredVisible.__init__(self, None, name, 0, 0, w, h, color, opacity=1.0)
         self.window = pyglet.window.Window()
         self.__children__ = []
+        self.event_handler = None
         
         def on_resize(width, height):
             self.extent = width, height
@@ -150,7 +151,46 @@ class Screen(ColoredVisible):
                 x.draw()
 
             glDisable(GL_BLEND)
+                     
+        buttonLUT = {
+            pyglet.window.mouse.LEFT: "left",
+            pyglet.window.mouse.MIDDLE: "middle",
+            pyglet.window.mouse.RIGHT: "right",
+        }
+                
+        @self.window.event
+        def on_mouse_motion(x, y, dx, dy):
+            y = self.h - y
+            h = self.getHandlerMethod("onMouseMove")
+            if h: h(x, y)
+
+        @self.window.event
+        def on_mouse_press(x, y, button, modifiers):
+            y = self.h - y
+            h = self.getHandlerMethod("onMouseButtonDown")
+            if h: h(buttonLUT[button], x, y)
+
+        @self.window.event
+        def on_mouse_release(x, y, button, modifiers):
+            y = self.h - y
+            h = self.getHandlerMethod("onMouseButtonUp")
+            if h: h(buttonLUT[button], x, y)
+
+        #@self.window.event         
+        #def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+        #    y = self.h - y
+        #    h = self.getHandlerMethod("onMouseMove")
+        #    h(x, y)
+            
+        #@self.window.event
+        #def on_mouse_scroll(x, y, scroll_x, scroll_y):
         
+    def getHandlerMethod(self, name):
+        if self.event_handler != None:
+            if hasattr(self.event_handler, name):
+                return getattr(self.event_handler, name)
+        return None
+          
     def __addChild__(self, c):
         if not c in self.__children__:
             self.__children__.append(c)
@@ -165,18 +205,14 @@ class Screen(ColoredVisible):
         return len(self.__children__)
         
 class Text(ColoredVisible):
-    def __init__(self, p, name, x=0, y=0, w=None, h=0, color="#00ff00", opacity=1.0, text=None):
-        self.text = text if text != None else name
+    def __init__(self, p, name, x=0, y=0, h=0, color="#00ff00", opacity=1.0, text=None):
         self.label = pyglet.text.Label(
-            self.text,
+            text if text != None else name,
             font_name='Helvetica',
             font_size=h,
             x=0, y=0)
 
-        ColoredVisible.__init__(self, p, name, x, y, w if w != None else 0, h, color, opacity)
-
-        if w == None:
-            self.w = self.label.content_width
+        ColoredVisible.__init__(self, p, name, x, y, self.label.content_width, h, color, opacity)
 
     def _colorComponentGetter(i):
         def getter(self): 
@@ -195,6 +231,10 @@ class Text(ColoredVisible):
     b = property(_colorComponentGetter(2), _colorComponentSetter(2))
     opacity = property(_colorComponentGetter(3), _colorComponentSetter(3))
 
+    def _setText(self, t): self.label.text = t
+    def _getText(self): return self.label.text
+    text = property(_getText, _setText)
+    
     def draw(self):
         glMatrixMode(gl.GL_MODELVIEW)
         glPushMatrix()
