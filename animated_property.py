@@ -20,7 +20,8 @@ class AnimatedProperty:
         #    raise Exception("Property to animate does not exist: " + name)
         
         funcs = []
-        if flags & PING_PONG and flags & LOOP:
+        if flags & PING_PONG: flags |= LOOP
+        if flags & PING_PONG:
             funcs.append(lambda x: x-int(x) if not int(x)%2 else 1.0 - (x-int(x)))
         elif flags & LOOP:
             funcs.append(lambda x: x-int(x))

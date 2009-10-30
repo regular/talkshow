@@ -298,8 +298,7 @@ class ClippingContainer(Visible):
             glGetIntegerv(GL_SCISSOR_BOX, old_scissor);
             osr = (old_scissor[0:2], old_scissor[2:4])
             r = clip_rect(r, osr)
-            
-        glScissor(*flatten_rect(r))
+        glScissor(*[int(x) for x in flatten_rect(r)])
 
         glEnable(GL_SCISSOR_TEST)
 
@@ -314,9 +313,10 @@ class Group(ClippingContainer):
     instanceCount = 0
     
     def __init__(self, p, name, x=0, y=0, w=10, h=10, ox=0, oy=0, clipChildren=True):
+        self._W, self._H = w, h
         ClippingContainer.__init__(self, p, name, x, y, w, h, ox, oy, clipChildren)     
         self.__children__ = []
-        
+
     def __addChild__(self, c):
         if not c in self.__children__:
             self.__children__.append(c)
@@ -337,7 +337,33 @@ class Group(ClippingContainer):
         for x in self:
             x.draw()
         glPopMatrix()
+        
+    ## W TODO: this isn't nice stuff ...
+    def _getW(self): return self._W
+    def _setW(self, value):
+        if self._W == value: return
+        self._W = value
+        self.doLayout(self._W, self._H)
+    w = property(_getW, _setW)
 
+    ## H
+    def _getH(self): return self._H
+    def _setH(self, value): 
+        self._H = value
+        if self._H == value: return
+        self.doLayout(self._W, self._H)
+    h = property(_getH, _setH)
+
+    ## EXTENT
+    def _getExtent(self): return (self._W, self._H)
+    def _setExtent(self, value): 
+        if (self._W, self._H) == value: return
+        self._W, self._H = value
+        self.doLayout(self._W, self._H)
+    extent = property(_getExtent, _setExtent)
+
+    def doLayout(self, w, h):
+        pass
 
 class Viewport(ClippingContainer):
     instanceCount = 0

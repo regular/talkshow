@@ -67,16 +67,16 @@ class RoundRect(wrappers.Visible):
     def __init__(self, parent, name, x, y, w, h, radius=RADIUS, outer_radius=OUTER_RADIUS, color="#ff6e00"):                                     
         wrappers.Visible.__init__(self, parent, name, x,y,w,h)
                                      
-        vertex_count = 4 * getCapVertexCount(self.SEGMENT_COUNT)
-        index_count = 7 * 2 * 3 + 4 * getCapIndexCount(self.SEGMENT_COUNT)
-        
-        self.mesh = pyglet.graphics.vertex_list_indexed(vertex_count, [0]*index_count, "v3f", "c4B") 
-                   
+        self.vertex_count = 4 * getCapVertexCount(self.SEGMENT_COUNT)
+        self.index_count = 7 * 2 * 3 + 4 * getCapIndexCount(self.SEGMENT_COUNT)
+                    
         self.color = (   # NOTE: r and b are swapped            
             string.atoi(color[5:7], 16),
             string.atoi(color[3:5], 16),
             string.atoi(color[1:3], 16)
         )
+        print color
+        print self.color
                 
         self.radius = radius
         self.outer_radius = outer_radius
@@ -89,14 +89,14 @@ class RoundRect(wrappers.Visible):
 
         glMatrixMode(gl.GL_MODELVIEW)
         glPushMatrix()
-        glTranslatef(self.x, self.y + self.h, 0);
+        glTranslatef(self.x, self.y, 0);
         self.mesh.draw(pyglet.gl.GL_TRIANGLES)
         glPopMatrix()
                      
     def _reconstruct(self):
         self.current_extent = self.extent        
         self._fillBuffers(0, 0)
-
+        
     def _fillBuffers(self, x, y):
         segment_count = self.SEGMENT_COUNT
         radius = self.radius
@@ -104,8 +104,15 @@ class RoundRect(wrappers.Visible):
         color = self.color
         alpha = 255
 
-        vb = self.mesh
-        ib = self.mesh.indices
+        class Dummy:
+            vertices = [0] * self.vertex_count
+            colors = [0] * self.vertex_count
+            indices = [0] * self.index_count
+
+        dummy = Dummy()
+
+        vb = dummy
+        ib = dummy.indices
     
         vi = 0
         ii = 0
@@ -175,4 +182,16 @@ class RoundRect(wrappers.Visible):
                         vi_ll-2,  vi_ll+1 ,ve_lr-2,
                         
         ]
-            
+        
+        self.mesh = pyglet.graphics.vertex_list_indexed(self.vertex_count, dummy.indices, ("v3f", dummy.vertices), ("c4B", dummy.colors)) 
+        
+        
+if __name__ == "__main__":
+    screen = wrappers.Screen("TALKSHOW")
+    #r1 = wrappers.Rect(screen, "r1", 120, 20, 100, 50, color="#ffffff")
+    #r2 = wrappers.Rect(screen, "r2", 140, 160, 50, 50, color="#00ff00")
+
+    for x in range(10):
+        RoundRect(screen, "rr1", 120+x*40, x*40, x*10+100, 50, color="#%2.2xff%2.2x" % (x*20, 200-x*10))
+    
+    pyglet.app.run()
