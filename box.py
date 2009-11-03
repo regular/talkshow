@@ -14,14 +14,26 @@ r = Box(rootWidget, "rr", 600, 400)
 r.clipCHildren=False
 r.x = 40
 r.y = 40
-r.animate("w", 300, 500, 0, 3000, PING_PONG | SMOOTH)
-r.animate("h", 200, 300, 0, 2000, PING_PONG | SMOOTH)
 
 slider = Slider(rootWidget, "slider1", 20, 200, 200, 40)
 scroller = Scrollbar(rootWidget, "sb1", 250, 100, 300, 40)
 button = Button(rootWidget, "button", 250, 400, 300, 40)
 
+image = Image(rootWidget, "image", "content/Zwei/cursor_big_over_2.png", x=40, y=40)
 #led = LED(rootWidget, "led1", 650, 500)
+t = Label(rootWidget, "Hello", x=40, y=40, size=400, font="Helvetica")
+#t = Text(rootWidget, "Hello", x=40, y=40, h=400, font="Helvetica")
+
+
+#r.animate("w", 300, 500, 0, 3000, PING_PONG | SMOOTH)
+#r.animate("h", 200, 300, 0, 2000, PING_PONG | SMOOTH)
+
+image.animate("w", 300, 500, 0, 3000, PING_PONG | SMOOTH)
+image.animate("h", 200, 300, 0, 2000, PING_PONG | SMOOTH)
+
+t.animate("w", 300, 500, 0, 3000, PING_PONG | SMOOTH)
+t.animate("h", 200, 300, 0, 2000, PING_PONG | SMOOTH)
+
 
 screen.event_handler = rootWidget
 

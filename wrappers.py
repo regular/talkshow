@@ -100,8 +100,8 @@ class ColoredVisible(Visible):
     
     def _setCOLORFADE(self, cf):
         self._COLORFADE= cf
-        r1, g1, b1 = self.splitColorChannels(self._color_fade_value1)
-        r2, g2, b2 = self.splitColorChannels(self._color_fade_value2)
+        r1, g1, b1 = splitColorChannels(self._color_fade_value1)
+        r2, g2, b2 = splitColorChannels(self._color_fade_value2)
 
         self.r = int(r1 + float(r2 - r1) * cf)
         self.g = int(g1 + float(g2 - g1) * cf)
@@ -121,17 +121,17 @@ class Rect(ColoredVisible):
         #glColor3f(self.r,self.g,self.b)
         pyglet.graphics.draw_indexed(4, pyglet.gl.GL_TRIANGLES,
             [0, 1, 2, 0, 2, 3],
-            ('v2i', (self.x, self.y,
-                     self.x+self.w, self.y,
-                     self.x+self.w, self.y+self.h,
-                     self.x, self.y+self.h)),
+            ('v2f', (float(self.x), float(self.y),
+                     float(self.x+self.w), float(self.y),
+                     float(self.x+self.w), float(self.y+self.h),
+                     float(self.x), float(self.y+self.h))),
             ('c4f', (self.r, self.g, self.b, self.opacity)*4)
         )
 
 class Screen(ColoredVisible):    
     def __init__(self, name, device = "", w = 640, h = 480, color="#00007f"):
         ColoredVisible.__init__(self, None, name, 0, 0, w, h, color, opacity=1.0)
-        self.window = pyglet.window.Window()
+        self.window = pyglet.window.Window(caption=name, width=w, height=h)
         self.__children__ = []
         self.event_handler = None
         
@@ -213,11 +213,51 @@ class Screen(ColoredVisible):
     def __len__(self):
         return len(self.__children__)
         
+        
+class Image(ColoredVisible):
+    def __init__(self, p, name, path, x=0, y=0, w=0, h=0, color="#ffffff", opacity=1.0):
+        image = pyglet.image.load(path)
+        self.sprite = pyglet.sprite.Sprite(image)
+        
+        ColoredVisible.__init__(self, p, name, x, y, self.sprite.width, self.sprite.height, color, opacity)
+      
+    def _colorComponentGetter(i):
+         def getter(self): 
+             self.sprite.color[i]/255.0
+         return getter
+
+    def _colorComponentSetter(i):
+        def setter(self, x):
+            components = list(self.sprite.color)
+            components[i] = int(x * 255)
+            self.sprite.color = components
+        return setter
+
+    r = property(_colorComponentGetter(0), _colorComponentSetter(0))
+    g = property(_colorComponentGetter(1), _colorComponentSetter(1))
+    b = property(_colorComponentGetter(2), _colorComponentSetter(2))
+    
+    def _setOpacity(self, x): self.sprite.opacity = int(x*255.0)
+    def _getOpacity(self): return self.sprite.opacity/255.0
+    opacity = property(_getOpacity, _setOpacity)
+    
+    def draw(self):
+        self.sprite.draw()
+        
+    def draw(self):
+        glMatrixMode(gl.GL_MODELVIEW)
+        glPushMatrix()
+        glTranslatef(self.x, self.y+self.h, 0);
+        glScalef(float(self.w) / float(self.sprite.width), -float(self.h) / float(self.sprite.height), 1);
+        self.sprite.draw()
+        glPopMatrix()
+    
+    
 class Text(ColoredVisible):
-    def __init__(self, p, name, x=0, y=0, h=0, color="#00ff00", opacity=1.0, text=None):
+    def __init__(self, p, name, x=0, y=0, h=0, color="#00ff00", opacity=1.0, text=None, font=None):
         self.label = pyglet.text.Label(
             text if text != None else name,
-            font_name='Helvetica',
+            font_name=font if font != None else "Helvetica",
             font_size=h,
             x=0, y=0)
 
@@ -243,13 +283,16 @@ class Text(ColoredVisible):
     def _setText(self, t): self.label.text = t
     def _getText(self): return self.label.text
     text = property(_getText, _setText)
-    
+
+    def _setFont(self, x): self.label.font_name = x
+    def _getFont(self): return self.label.font_name
+    font = property(_getFont, _setFont)
+
     def draw(self):
         glMatrixMode(gl.GL_MODELVIEW)
         glPushMatrix()
         glTranslatef(self.x, self.y + self.h, 0);
-        glScalef(float(self.w) / float(self.label.content_width), -1, 1);
-        #self.label.color = (int(self.r*255), int(self.g*255), int(self.b*255), int(self.opacity*255))
+        glScalef(float(self.w) / float(self.label.content_width), -float(self.h) / float(self.label.font_size), 1);
         self.label.draw()
         glPopMatrix()
 

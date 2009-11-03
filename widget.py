@@ -51,18 +51,18 @@ class Widget(Group):
                         
 
 class Label(Widget):
-    FONT = "arial"
+    FONT = "Helvetica"
     WEIGHT = -100
-    def __init__(self, parent, x, y, size):
-        Widget.__init__(self, parent, "Label", w = parent.w, h = parent.h, x = x, y = y)
-        self.shadow = Text(self, "shadow", 1, 1, size, color="#000000", opacity = 0.4) 
-        self.fg = Text(self, "text", 0,0, size, opacity=0.9) 
+    def __init__(self, parent, name, x, y, size, text=None, font=None, color="#ffffff"):
+        self.shadow = Text(None, "shadow", 2, 2, h=size, text=text if text else name, color="#000000", opacity = 0.4, font=font if font else self.FONT) 
+        self.fg = Text(None, "text", 0,0, h=size, text=text if text else name, color=color, opacity=0.9,font=font if font else self.FONT) 
 
-        self.shadow.font = self.fg.font= self.FONT  
-        self.shadow.weight = self.fg.weight= self.WEIGHT
-               
-        self.text = "Text"
-        self.w = self.shadow.w + 10
+        Widget.__init__(self, parent, name, x = x, y = y, w = self.shadow.w + 2, h = self.shadow.h + 2)
+        self.shadow.parent = self.fg.parent = self
+
+    def doLayout(self, w, h):
+        self.shadow.w = self.fg.w = w - 2
+        self.shadow.h = self.fg.h = h - 2
         
     def _getTEXT(self):
         return self.fg.text
@@ -329,10 +329,10 @@ class Button(Widget):
         b = self.bar = Box(self.container, "bar", w, h, s=BarSettings)
         b.x, b.y = 1,1
         
-        label = self.label = Label(self,  0, 0, self.h * 2.5 / 4)
-        label.y = (self.h - label.h) / 2 + 7
+        label = self.label = Label(self,  "label", 0, 0, size=h*2.2/4.0, text = text)
         label.x = (self.w - label.w) / 2
-        label.text = text        
+        label.y = (self.h - label.h) / 2 
+        #label.text = text        
         label.progress=1
        
     def onMouseButtonDown(self, button, x, y):
