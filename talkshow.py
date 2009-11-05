@@ -138,6 +138,9 @@ class Talkshow(Widget):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)     
         self.bg = Rect(self, "bg", w=self.w, h=self.h-100, x=50, color = "#000000")
         self.gridContainer = Widget(self, "gridContainer", w = self.w - 20, h=self.h-20-100, x=10, y=50)
+
+        b = self.quitButton = Button(self, "quitbutton", self.w - 50, 0, 50, 50, handler = self.quit, text='X')        
+
         
         b = self.backButton = Button(self, "backbutton", 20, self.h - 100 + 50, 100, 50, handler = self.back, text='<<')        
         self.homeButton = Button(self, "homebutton", self.w/2 - 100 , self.h - 100 + 50, 200, 50, handler = self.home, text="Start")
@@ -154,6 +157,9 @@ class Talkshow(Widget):
         
         l = self.label = Label(self, "title", x=20, y=10, size=20, text = "KommHelp Talkshow", color = "#0030ff")        
         #l.animate("progress", 0, 1, 0, 3000)
+        
+    def quit(self):
+        sys.exit(0)
     
     def getFieldText(self, i):
          return self.items[i]
@@ -262,7 +268,7 @@ class Talkshow(Widget):
 
 #environment.set("character_spacing", -2)                    
 
-screen = Screen("Talkshow", "", 1024, 768)
+screen = Screen("Talkshow", "", 1280, 768)
 talkshow = Talkshow(screen)
 
 #tubifex.keyboard_sink = talkshow.key_sink
@@ -270,7 +276,7 @@ screen.event_handler = talkshow
 
 # boilerplate
 def tick():
-    animated_property.T = time.time()*1000
+    animated_property.T = time.time()*100
     animated_property.AnimatedProperty.tick()
     return True
     
