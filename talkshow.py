@@ -197,16 +197,16 @@ class Talkshow(Widget):
         if sounds:
             path = normalizePath(sounds[0])
             #print path
-            r = Resource(path)
-            print r._obj.details
-
-            r = r.find("sound0")
+            #r = Resource(path)
             #print r._obj.details
-            if r != None:
-                s = self.sound  = tubifex.Sound(0, r._obj)
-                s.speed=1
-            else:
-                print "Unable to decode wav"
+
+            #r = r.find("sound0")
+            #print r._obj.details
+            #if r != None:
+            s = self.sound  = Sound(0, path)
+            s.speed=1
+            #else:
+            #    print "Unable to decode wav"
             
         
     def setVolume(self, v):

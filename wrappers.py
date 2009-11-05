@@ -3,6 +3,7 @@ from sys import getrefcount
 import string
 import pyglet
 from pyglet.gl import *
+from pyglet.media import *
 from rect import *
 from animated_property import AnimatedProperty
 
@@ -423,6 +424,42 @@ class Viewport(ClippingContainer):
         self.world.draw()
         glPopMatrix()
 
+class Sound(object):
+    def __init__(self, device, filename):
+        self.player = Player()
+        self.source = load(filename)
+        self.player.queue(self.source)
+
+    def __del__(self):
+        self.speed=0
+
+    def getT(self): return self.player.time
+    def setT(self, x): self.player.seek(x)
+    t = property(getT, setT)
+
+    def getDuration(self):
+        return self.source.duration
+    duration = property(getDuration, None)
+    
+    def getProgress(self): return self.player.time/self.source.duration
+    def setProgress(self, p): self.player.seek(p*self.source.duration)
+    progress = property(getProgress, setProgress)
+    
+    def getSpeed(self): 
+        if self.player.playing:
+            return self.player.pitch
+        else:
+            return 0.0
+    def setSpeed(self, s):
+        if s == 0.0:
+            if self.player.playing:
+                self.player.pause()
+        elif not self.player.playing:
+            self.player.pitch = s
+            self.player.play()
+    speed = property(getSpeed, setSpeed)
+    
+    
 ##
 # Regression Tests
 ##
