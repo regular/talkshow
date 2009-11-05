@@ -136,12 +136,12 @@ class Grid(Widget):
 class Talkshow(Widget):
     def __init__(self, screen):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)     
-        self.bg = Rect(self, "bg", w=self.w, h=self.h-100, color = "#000000")
-        self.gridContainer = Widget(self, "gridContainer", w = self.w - 20, h=self.h-20-100, x=10, y=10)
+        self.bg = Rect(self, "bg", w=self.w, h=self.h-100, x=50, color = "#000000")
+        self.gridContainer = Widget(self, "gridContainer", w = self.w - 20, h=self.h-20-100, x=10, y=50)
         
-        b = self.backButton = Button(self, "backbutton", 20, self.h - 100 + 20, 100, 50, handler = self.back, text='<<')        
-        self.homeButton = Button(self, "homebutton", self.w/2 - 100 , self.h - 100 + 20, 200, 50, handler = self.home, text="Start")
-        self.volumeSlider = Slider(self, "volume", self.w - 200 - 20 , self.h - 100 + 20, 200, 50, action = self.setVolume)
+        b = self.backButton = Button(self, "backbutton", 20, self.h - 100 + 50, 100, 50, handler = self.back, text='<<')        
+        self.homeButton = Button(self, "homebutton", self.w/2 - 100 , self.h - 100 + 50, 200, 50, handler = self.home, text="Start")
+        self.volumeSlider = Slider(self, "volume", self.w - 200 - 20 , self.h - 100 + 50, 200, 50, action = self.setVolume)
         self.volumeSlider.knobPosition = 0.75
         
         self.count = 9        
@@ -152,7 +152,7 @@ class Talkshow(Widget):
         self.gridFromPath()
         #self.newGrid()
         
-        l = self.label = Label(self, "title", x=20, y=20, size=50, text = "KommHelp Talkshow", color = "#0030ff")        
+        l = self.label = Label(self, "title", x=20, y=10, size=20, text = "KommHelp Talkshow", color = "#0030ff")        
         #l.animate("progress", 0, 1, 0, 3000)
     
     def getFieldText(self, i):
@@ -262,7 +262,7 @@ class Talkshow(Widget):
 
 #environment.set("character_spacing", -2)                    
 
-screen = Screen("Talkshow", "", 800, 600)
+screen = Screen("Talkshow", "", 1024, 768)
 talkshow = Talkshow(screen)
 
 #tubifex.keyboard_sink = talkshow.key_sink
