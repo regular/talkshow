@@ -344,11 +344,13 @@ class Button(Widget):
         label.progress=1
        
     def onMouseButtonDown(self, button, x, y):
+        self.bar.parent = None
         b = self.bar = Box(self.container, "bar", self.w-4, self.h-4, s=HighlightBarSettings)
         b.x, b.y = 3,3
         self.captureMouse()
          
     def onMouseButtonUp(self, button, x, y):
+        self.bar.parent = None
         b = self.bar = Box(self.container, "bar", self.w, self.h, s=BarSettings)
         b.x, b.y = 1,1
         if self.handler != None:
