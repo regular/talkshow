@@ -25,6 +25,9 @@ class DelayedCall:
             DelayedCall._callme(ref)
             
     def __init__(self, func, delay, cookie = NoCookie, periodic = False):   
+        assert delay != None
+        assert delay == int(delay)
+        
         self.periodic = periodic
         self.scheduled = False
         self.cookie = cookie
