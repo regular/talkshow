@@ -70,8 +70,8 @@ class Visible(object):
         if propname != "color":
             AnimatedProperty.animate(self, propname, startvalue, endvalue, when, duration, flags)
         else:
-            self._color_fade_value1 = startvalue
-            self._color_fade_value2 = endvalue
+            self._color_fade_value1 = splitColorChannels(startvalue)
+            self._color_fade_value2 = splitColorChannels(endvalue)
             self._color_fade = 0.0
             AnimatedProperty.animate(self, "_color_fade", 0.0, 1.0, when, duration, flags)
     
@@ -101,12 +101,13 @@ class ColoredVisible(Visible):
     
     def _setCOLORFADE(self, cf):
         self._COLORFADE= cf
-        r1, g1, b1 = splitColorChannels(self._color_fade_value1)
-        r2, g2, b2 = splitColorChannels(self._color_fade_value2)
+        r1, g1, b1 = self._color_fade_value1
+        r2, g2, b2 = self._color_fade_value2
 
-        self.r = int(r1 + float(r2 - r1) * cf)
-        self.g = int(g1 + float(g2 - g1) * cf)
-        self.b = int(b1 + float(b2 - b1) * cf)
+        self.r = r1 + (r2 - r1) * cf
+        self.g = g1 + (g2 - g1) * cf
+        self.b = b1 + (b2 - b1) * cf
+
     def _getCOLORFADE(self):
         return self._COLORFADE
     _color_fade = property(_getCOLORFADE, _setCOLORFADE)

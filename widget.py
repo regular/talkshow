@@ -76,6 +76,14 @@ class Label(Widget):
     def _setCOLOR(self, c):        
         self.fg.color = c
     color = property(_getCOLOR, _setCOLOR)
+
+    def getOpacity(self):
+        return self.fg.opacity
+    def setOpacity(self, c):        
+        self.fg.opacity = c
+        self.shadow.opacity = c
+    progress = color = property(getOpacity, setOpacity)
+
                    
 class DefaultSettings:
     inner_radius = 30

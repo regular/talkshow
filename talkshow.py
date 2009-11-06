@@ -23,19 +23,20 @@ def clamp(v, low=0.0, high=1.0):
 class Field(Widget):    
     def __init__(self, parent, x, y, w, h, text):
         Widget.__init__(self, parent, "Field", w = w, h = h, x = x, y = y)
-        border = self.border = Rect(self, "border", 0, 0, w, h)        
+        border = self.border = Rect(self, "border", 0, 0, w, h, color="#1f1f1f")        
         border.opacity=0
-        bg = self.bg = Rect(self, "bg", 1, 1, w-2, h-2)        
+        bg = self.bg = Rect(self, "bg", 2, 2, w-4, h-4)        
         bg.color = "#7f7f7f"
         l = self.label = Label(self, "label", x=20, y=20, size=h/5, text=text)        
         self.PROGRESS = 0
 
     def startHighlight(self):
-        self.border.animate("opacity", 1, 0, 0, 125)
+        #self.border.animate("opacity", 1, 0, 0, 250)
+        self.bg.animate("opacity", 0, 1, 0, 250)
 
     def doLayout(self, new_w, new_h):
         self.border.extent = new_w, new_h
-        self.bg.extent = new_w-2, new_h-2        
+        self.bg.extent = new_w-4, new_h-4        
         self.label.size = new_h/5
         if hasattr(self, "icon"):
             self.icon.x = (self.w - self.icon.w) / 2.0
@@ -60,10 +61,10 @@ class Field(Widget):
         self.label.progress = clamp((p - 0.5) / 0.5)        
         box_progress = clamp(p / 0.5)
         
-        self.bg.w = (self.w-2) * box_progress
-        self.bg.h = (self.h-2) * box_progress
-        self.bg.x = 1+ (self.w-2)/2 - ((self.w-2)/2 * box_progress)
-        self.bg.y = 1+ (self.h-2)/2 - ((self.h-2)/2 * box_progress)
+        self.bg.w = (self.w-4) * box_progress
+        self.bg.h = (self.h-4) * box_progress
+        self.bg.x = 2+ (self.w-4)/2 - ((self.w-4)/2 * box_progress)
+        self.bg.y = 2+ (self.h-4)/2 - ((self.h-4)/2 * box_progress)
            
         self.bg.opacity = box_progress          
         if hasattr(self, "icon"): self.icon.opacity = box_progress
@@ -104,7 +105,8 @@ class Grid(Widget):
                     if icon != None:
                         field.icon = icon
                         icon.parent = field  
-                        field.doLayout(field.w, field.h)                      
+                        field.doLayout(field.w, field.h)      
+                    field.progress=0                
                     field.animate("progress", 0, 1, 0, 250)
                     field.color = "#%2X%2X00" % (int(255 * (c+1)/cols), int(255 * (r+1)/rows))
                     field.index = i
@@ -121,25 +123,31 @@ class Grid(Widget):
             self.delegate.onFieldClicked(field)
 
     def enterFIeld(self, field):
+        print "enterFIeld", field
         if field != None:
             for f in self:
                 if f != field:
                     f.animate("progress", f.progress, 0, 0, 250)
-            field.startHighlight()
-            field.animate("x", field.x, 0, 125, 250)
-            field.animate("y", field.y, 0, 125, 250)
-            field.animate("w", field.w, self.w, 125, 250)
-            field.animate("h", field.h, self.h, 125, 250)
-            field.animate("opacity", field.opacity, 0, 250, 250)
-        
+            
+            delay = 125
+            duration = 250
+            field.animate("x", field.x, 0.0, delay, duration)
+            field.animate("y", field.y, 0, delay, duration)
+            field.animate("w", field.w, self.w, delay, duration)
+            field.animate("h", field.h, self.h, delay, duration)
+            field.animate("opacity", field.opacity, 0, delay+duration, duration)
+            self.delegate.bg.animate("color", self.delegate.bg.color, field.color, delay+duration, duration)
+            if hasattr(field, "icon"):
+                field.icon.animate("opacity", field.opacity, 0, delay*2, duration)
+                
        
 class Talkshow(Widget):
     def __init__(self, screen):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)     
-        self.bg = Rect(self, "bg", w=self.w, h=self.h-100, x=50, color = "#000000")
+        self.bg = Rect(self, "bg",  w = self.w , h=self.h-100, x=0, y=40, color="#202020")
         self.gridContainer = Widget(self, "gridContainer", w = self.w - 20, h=self.h-20-100, x=10, y=50)
 
-        b = self.quitButton = Button(self, "quitbutton", self.w - 50, 0, 50, 50, handler = self.quit, text='X')        
+        b = self.quitButton = Button(self, "quitbutton", self.w - 40, 0, 40, 40, handler = self.quit, text='X')        
 
         
         b = self.backButton = Button(self, "backbutton", 20, self.h - 100 + 50, 100, 50, handler = self.back, text='<<')        
@@ -175,6 +183,8 @@ class Talkshow(Widget):
          
     def onFieldClicked(self, f):        
         if f != None:
+            f.startHighlight()
+            
             if f.index<len(self.items):
               subfields = self.subdirs(self.pathPrefix, self.pathForField(f.index))
               print "subfields", subfields
@@ -182,7 +192,6 @@ class Talkshow(Widget):
                   #self.path = self.pathForField(f.index)     
 
                   self.grid.enterFIeld(f)
-                  self.bg.animate("color", self.bg.color, f.color, 0, 500)
                   self.dc = DelayedCall(self.gridFromPath, 500, (f.color, self.pathForField(f.index)))
               self.playPath(self.pathPrefix + self.pathForField(f.index))
     
@@ -224,10 +233,12 @@ class Talkshow(Widget):
         if l:
             self.path= "/".join(l[:-1])
             self.gridFromPath()
+            self.cleanUp()
   
     def home(self):
         l = self.path = ""
-        self.gridFromPath()  
+        self.gridFromPath()
+        self.cleanUp()
               
     def subdirs(self, prefix, path):
         items = os.listdir(prefix+path)        
@@ -252,10 +263,19 @@ class Talkshow(Widget):
         
     def newGrid(self, color="#000000"):
         self.bg.color=color
-        if self.grid != None:
-            self.grid.parent = None
         self.grid = Grid(self.gridContainer, self.count, self)
         print "instanceCount", Grid.instanceCount
+        self.cleanupDC = DelayedCall(self.cleanUp, 375)
+
+    def cleanUp(self):
+        # remove all children from gridCOntainer except the last one
+        c = len(self.gridContainer)
+        i = 0
+        for x in self.gridContainer:
+            if i<c-1:
+                x.parent = None
+            i+=1
+            
 
     def key_sink(self, k):
         if k=="+":
@@ -276,7 +296,7 @@ screen.event_handler = talkshow
 
 # boilerplate
 def tick():
-    animated_property.T = time.time()*100
+    animated_property.T = time.time()*1000
     animated_property.AnimatedProperty.tick()
     return True
     
