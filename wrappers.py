@@ -132,8 +132,8 @@ class Rect(ColoredVisible):
 
 class Screen(ColoredVisible):    
     def __init__(self, name, device = "", w = 640, h = 480, color="#00007f"):
-        ColoredVisible.__init__(self, None, name, 0, 0, w, h, color, opacity=1.0)
         self.window = pyglet.window.Window(caption=name, fullscreen=1)
+        ColoredVisible.__init__(self, None, name, 0, 0, self.w, self.h, color, opacity=1.0)
         self.__children__ = []
         self.event_handler = None
         
@@ -215,7 +215,18 @@ class Screen(ColoredVisible):
     def __len__(self):
         return len(self.__children__)
         
-        
+    def getW(self): return self.window.width
+    def setW(self, w):
+        if w != self.window.width:
+            self.window.width = w
+    w = property(getW, setW)
+
+    def getH(self): return self.window.height
+    def setH(self, h): 
+        if h != self.window.height:
+            self.window.height = h
+    h = property(getH, setH)
+         
 class Image(ColoredVisible):
     def __init__(self, p, name, path, x=0, y=0, w=0, h=0, color="#ffffff", opacity=1.0):
         image = pyglet.image.load(path)
