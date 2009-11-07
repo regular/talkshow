@@ -153,7 +153,7 @@ class Talkshow(Widget):
         b = self.backButton = Button(self, "backbutton", 20, self.h - 100 + 50, 100, 50, handler = self.back, text='<<')        
         self.homeButton = Button(self, "homebutton", self.w/2 - 100 , self.h - 100 + 50, 200, 50, handler = self.home, text="Start")
         self.volumeSlider = Slider(self, "volume", self.w - 200 - 20 , self.h - 100 + 50, 200, 50, action = self.setVolume)
-        self.volumeSlider.knobPosition = 0.75
+        self.volumeSlider.knobPosition = 1.0
         
         self.count = 9        
         
@@ -227,6 +227,7 @@ class Talkshow(Widget):
     def setVolume(self, v):
         print "Volume", v
         #tubifex.volume = v
+        Sound.setGlobalVolume(v)
         
     def back(self):
         l = self.path.split("/")

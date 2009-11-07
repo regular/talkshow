@@ -187,11 +187,12 @@ class Screen(ColoredVisible):
             h = self.getHandlerMethod("onMouseButtonUp")
             if h: h(buttonLUT[button], x, y)
 
-        #@self.window.event         
-        #def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
-        #    y = self.h - y
-        #    h = self.getHandlerMethod("onMouseMove")
-        #    h(x, y)
+        @self.window.event         
+        def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+            # we use the same handler as for mouse move
+            y = self.h - y
+            h = self.getHandlerMethod("onMouseMove")
+            if h: h(x, y)
             
         #@self.window.event
         #def on_mouse_scroll(x, y, scroll_x, scroll_y):
@@ -437,13 +438,28 @@ class Viewport(ClippingContainer):
         glPopMatrix()
 
 class Sound(object):
+    _globalVolume = 1.0
+    _allSounds = []
+    
+    @staticmethod
+    def setGlobalVolume(v):
+        Sound._globalVolume = v
+        for w in Sound._allSounds:
+            s = w()
+            if s != None:
+                s._setAbsoluteVolume(v * s._volume)
+    
     def __init__(self, device, filename):
         self.player = Player()
         self.source = load(filename)
         self.player.queue(self.source)
+        self.id = len(self._allSounds)
+        self._allSounds.append(weakref.ref(self))
+        self.volume = 1.0
 
     def __del__(self):
         self.speed=0
+        del self._allSounds[self.id]
 
     def getT(self): return self.player.time
     def setT(self, x): self.player.seek(x)
@@ -471,6 +487,15 @@ class Sound(object):
             self.player.play()
     speed = property(getSpeed, setSpeed)
     
+    def _setAbsoluteVolume(self, v):
+        self.player.volume = v
+    
+    def setVolume(self, v):
+        self._volume = v
+        self._setAbsoluteVolume(self._volume * self._globalVolume)
+    def getVolume(self):
+        return self._volume
+    volume = property(getVolume, setVolume)
     
 ##
 # Regression Tests
