@@ -66,6 +66,7 @@ class DelayedCall:
             print "cancel!"
             pyglet.clock.unschedule(self.identifier)
         self.scheduled = False
+        self.func = None
     
     def __del__(self):
         self.cancel()
