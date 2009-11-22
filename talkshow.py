@@ -160,6 +160,7 @@ class Talkshow(Widget):
         self.pathPrefix = "./Content/"
         self.path= ""
         self.grid = None
+        self.videoplayer = None
         self.gridFromPath()
         #self.newGrid()
         
@@ -204,9 +205,21 @@ class Talkshow(Widget):
             i = Image(None, path, path)
             return i
         return None
-        
+          
+    def cancelVideo(self):
+        if self.videoplayer:
+            self.videoplayer.unref()
+            self.videoplayer.parent = None
+            self.videoplayer = None
     
     def playPath(self, path):
+        videos = glob.glob(path+"/*.mpg")
+        if videos:
+            path = normalizePath(videos[0])
+            self.cancelVideo()
+            self.videoplayer =  Videoplayer(self.gridContainer, "videoplayer", path, 0, 0, w=self.gridContainer.w, h=self.gridContainer.h)
+            return
+        
         sounds = glob.glob(path+"/*.wav")
         print "sounds", sounds
         if sounds:
@@ -269,6 +282,8 @@ class Talkshow(Widget):
         self.cleanupDC = DelayedCall(self.cleanUp, 375)
 
     def cleanUp(self):
+        self.cancelVideo()
+        
         # remove all children from gridCOntainer except the last one
         c = len(self.gridContainer)
         i = 0

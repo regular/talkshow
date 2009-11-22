@@ -7,6 +7,11 @@ class Widget(Group):
         Group.__init__(self, p, name, x, y, w, h, ox, oy)
         self.mouseOwner = None
     
+    def reverseIterator(self):
+        childrencopy = list(self.__children__)
+        childrencopy.reverse()
+        return childrencopy.__iter__()
+    
     def captureMouse(self):
         self._captureMouse(self)
 
@@ -25,27 +30,29 @@ class Widget(Group):
         if self.mouseOwner != None:
             self.mouseOwner.onMouseButtonDown(button, x, y)
         else:
-            for child in self:
+            for child in self.reverseIterator():
                 if child.contains(x, y):
                     if hasattr(child, "onMouseButtonDown"):
                         child.onMouseButtonDown(button, x - child.x, y - child.y)
+                        break
                     
     def onMouseButtonUp(self, button, x, y):
         if self.mouseOwner != None:
             self.mouseOwner.onMouseButtonUp(button, x, y)
         else:
-            for child in self:
+            for child in self.reverseIterator():
                 if child.contains(x, y):
                     if hasattr(child, "onMouseButtonUp"):
                         child.onMouseButtonUp(button, x - child.x, y - child.y)
+                        break
                     
     def onMouseMove(self, x, y):
         if self.mouseOwner != self:
-            for child in self:
+            for child in self.reverseIterator():
                 if hasattr(child, "onMouseMove"):
                     child.onMouseMove(x - child.x, y - child.y)
         else:
-            for child in self:
+            for child in self.reverseIterator():
                 if child.contains(x, y):
                     if hasattr(child, "onMouseMove"):
                         child.onMouseMove(x - child.x, y - child.y)
@@ -334,10 +341,15 @@ class Videoplayer(Widget):
         Widget.__init__(self, parent, name, x, y, w, h)        
         self.video = Video(self, "video", filepath, x=0, y=0)
         self.video.speed=1
-        self.slider = Slider(self, "slider", 0,0,w,40,action=self.onSliderUpdate)
+        self.slider = Slider(self, "slider", 0,0,w,40, action=self.onSliderUpdate)
         self.doLayout(w,h)
         self.suppressUpdateHandlerCall = False
         self.updatePC = PeriodicCall(self.updateSlider, 0) 
+    
+    def unref(self):
+        # break up circular references
+        self.updatePC = None
+        self.slider.action = None
     
     def onSliderUpdate(self, v):
         if not self.suppressUpdateHandlerCall:

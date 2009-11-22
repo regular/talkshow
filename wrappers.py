@@ -448,6 +448,9 @@ class Video(Image):
         image = self.player.texture
         self.sprite = pyglet.sprite.Sprite(image)
         Image.__init__(self, p, name, None, x, y, w, h, color, opacity)
+    
+    def __del__(self):
+        self.speed=0
         
     def getT(self): return self.player.time
     def setT(self, x): 
