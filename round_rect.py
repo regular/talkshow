@@ -75,8 +75,8 @@ class RoundRect(wrappers.Visible):
             string.atoi(color[3:5], 16),
             string.atoi(color[1:3], 16)
         )
-        print color
-        print self.color
+        #print color
+        #print self.color
                 
         self.radius = radius
         self.outer_radius = outer_radius
