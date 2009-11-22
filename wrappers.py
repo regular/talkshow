@@ -1,4 +1,5 @@
 import weakref
+import sys
 from sys import getrefcount
 import string
 import pyglet
@@ -230,7 +231,8 @@ class Screen(ColoredVisible):
          
 class Image(ColoredVisible):
     def __init__(self, p, name, path, x=0, y=0, w=0, h=0, color="#ffffff", opacity=1.0):
-        image = pyglet.image.load(path)
+        if path:
+            image = pyglet.image.load(path.encode(sys.getfilesystemencoding()))
         self.sprite = pyglet.sprite.Sprite(image)
         
         ColoredVisible.__init__(self, p, name, x, y, self.sprite.width, self.sprite.height, color, opacity)
@@ -254,10 +256,7 @@ class Image(ColoredVisible):
     def _setOpacity(self, x): self.sprite.opacity = int(x*255.0)
     def _getOpacity(self): return self.sprite.opacity/255.0
     opacity = property(_getOpacity, _setOpacity)
-    
-    def draw(self):
-        self.sprite.draw()
-        
+            
     def draw(self):
         glMatrixMode(gl.GL_MODELVIEW)
         glPushMatrix()
@@ -437,6 +436,41 @@ class Viewport(ClippingContainer):
         self.world.draw()
         glPopMatrix()
 
+##  TODO: refactor properties speed, t, progress, duration into common base class
+class Video(Image):
+    def __init__(self, p, name, path, x=0, y=0, w=0, h=0, color="#ffffff", opacity=1.0):
+        self.player = Player()
+        self.source = load(path.encode(sys.getfilesystemencoding()))
+        self.player.queue(self.source)
+        self.image = player.texture
+        Image.__init__(self, p, name, path, x, y, w, h, color, opacity)
+
+    def getT(self): return self.player.time
+    def setT(self, x): self.player.seek(x)
+    t = property(getT, setT)
+
+    def getDuration(self):
+        return self.source.duration
+    duration = property(getDuration, None)
+    
+    def getProgress(self): return self.player.time/self.source.duration
+    def setProgress(self, p): self.player.seek(p*self.source.duration)
+    progress = property(getProgress, setProgress)
+    
+    def getSpeed(self): 
+        if self.player.playing:
+            return self.player.pitch
+        else:
+            return 0.0
+    def setSpeed(self, s):
+        if s == 0.0:
+            if self.player.playing:
+                self.player.pause()
+        elif not self.player.playing:
+            self.player.pitch = s
+            self.player.play()
+    speed = property(getSpeed, setSpeed)
+        
 class Sound(object):
     _globalVolume = 1.0
     _allSounds = []
@@ -449,9 +483,9 @@ class Sound(object):
             if s != None:
                 s._setAbsoluteVolume(v * s._volume)
     
-    def __init__(self, device, filename):
+    def __init__(self, device, path):
         self.player = Player()
-        self.source = load(filename)
+        self.source = load(path.encode(sys.getfilesystemencoding()))
         self.player.queue(self.source)
         self.id = len(self._allSounds)
         self._allSounds.append(weakref.ref(self))

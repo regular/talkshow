@@ -242,8 +242,8 @@ class Talkshow(Widget):
         self.cleanUp()
               
     def subdirs(self, prefix, path):
-        items = os.listdir(prefix+path)        
-        items =  filter(lambda x: os.path.isdir(prefix + path + "/" + x), items)            
+        items = os.listdir(unicode(prefix+path))        
+        items = filter(lambda x: os.path.isdir(prefix + path + "/" + x), items)            
         #print items
         return items
                 
