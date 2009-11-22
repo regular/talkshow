@@ -1,5 +1,6 @@
 from round_rect import RoundRect
 from wrappers import *
+from delayed_call import *
    
 class Widget(Group):
     def __init__(self, p, name, x = 0, y = 0, w = 10, h = 10, ox = 0, oy = 0):
@@ -272,7 +273,7 @@ class Scrollbar(Widget):
         self.minmax = (2, self.outline.x + self.outline.w - self.bar.w + 2)
        
     def onMouseButtonDown(self, button, x, y):
-        print "Scrollbar click at ", x, y
+        #print "Scrollbar click at ", x, y
  
         if x > self.bar.x + self.bar.w:
             self.bar.x += self.bar.w
@@ -328,6 +329,32 @@ class Slider(Scrollbar):
         self.minmax = (self.track.x - 15, self.track.x + self.track.w - self.bar.w + 2 + 15 )
 
 
+class Videoplayer(Widget):
+    def __init__(self, parent, name, filepath, x, y, w, h):
+        Widget.__init__(self, parent, name, x, y, w, h)        
+        self.video = Video(self, "video", filepath, x=0, y=0)
+        self.video.speed=1
+        self.slider = Slider(self, "slider", 0,0,w,40,action=self.onSliderUpdate)
+        self.doLayout(w,h)
+        self.suppressUpdateHandlerCall = False
+        self.updatePC = PeriodicCall(self.updateSlider, 0) 
+    
+    def onSliderUpdate(self, v):
+        if not self.suppressUpdateHandlerCall:
+            self.video.progress = v
+    
+    def updateSlider(self):
+        self.suppressUpdateHandlerCall = True
+        self.slider.knobPosition = self.video.progress
+        self.suppressUpdateHandlerCall = False
+        return True
+        
+    def doLayout(self, w, h):
+        self.video.w = w
+        self.video.h = h
+        self.slider.w = w
+        self.slider.y = h - self.slider.h
+        
 class Button(Widget):
     def __init__(self, parent, name, x, y, w, h, text="button", handler = None):
         Widget.__init__(self, parent, name, x, y, w, h)        

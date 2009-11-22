@@ -230,12 +230,15 @@ class Screen(ColoredVisible):
     h = property(getH, setH)
          
 class Image(ColoredVisible):
-    def __init__(self, p, name, path, x=0, y=0, w=0, h=0, color="#ffffff", opacity=1.0):
+    def __init__(self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0):
         if path:
             image = pyglet.image.load(path.encode(sys.getfilesystemencoding()))
-        self.sprite = pyglet.sprite.Sprite(image)
+            self.sprite = pyglet.sprite.Sprite(image)
         
-        ColoredVisible.__init__(self, p, name, x, y, self.sprite.width, self.sprite.height, color, opacity)
+        if w == None: w = self.sprite.width
+        if h == None: h = self.sprite.height
+        
+        ColoredVisible.__init__(self, p, name, x, y, w, h, color, opacity)
       
     def _colorComponentGetter(i):
          def getter(self): 
@@ -438,15 +441,19 @@ class Viewport(ClippingContainer):
 
 ##  TODO: refactor properties speed, t, progress, duration into common base class
 class Video(Image):
-    def __init__(self, p, name, path, x=0, y=0, w=0, h=0, color="#ffffff", opacity=1.0):
+    def __init__(self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0):
         self.player = Player()
         self.source = load(path.encode(sys.getfilesystemencoding()))
         self.player.queue(self.source)
-        self.image = player.texture
-        Image.__init__(self, p, name, path, x, y, w, h, color, opacity)
-
+        image = self.player.texture
+        self.sprite = pyglet.sprite.Sprite(image)
+        Image.__init__(self, p, name, None, x, y, w, h, color, opacity)
+        
     def getT(self): return self.player.time
-    def setT(self, x): self.player.seek(x)
+    def setT(self, x): 
+        playing = self.player.playing
+        self.player.seek(x)
+        if playing: self.player.play()
     t = property(getT, setT)
 
     def getDuration(self):
@@ -454,7 +461,11 @@ class Video(Image):
     duration = property(getDuration, None)
     
     def getProgress(self): return self.player.time/self.source.duration
-    def setProgress(self, p): self.player.seek(p*self.source.duration)
+    def setProgress(self, p): 
+        playing = self.player.playing
+        self.player.seek(p*self.source.duration)
+        if playing: self.player.play()
+        
     progress = property(getProgress, setProgress)
     
     def getSpeed(self): 
