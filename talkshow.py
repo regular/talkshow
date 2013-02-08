@@ -9,6 +9,8 @@ from delayed_call import *
 import animated_property
 import time
 
+#omment
+
 def normalizePath(path):
     path = path.replace("\\", "/")
     while "//" in path:
