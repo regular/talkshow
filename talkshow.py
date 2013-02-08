@@ -9,7 +9,7 @@ from delayed_call import *
 import animated_property
 import time
 
-#omment
+#full screen mode can be set or unset in wrappers under the class "Screen" in the constructor
 
 
 def normalizePath(path):
