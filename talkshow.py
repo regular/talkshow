@@ -11,6 +11,7 @@ import time
 
 #omment
 
+
 def normalizePath(path):
     path = path.replace("\\", "/")
     while "//" in path:
@@ -173,7 +174,7 @@ class Talkshow(Widget):
         sys.exit(0)
     
     def getFieldText(self, i):
-         return self.items[i]
+        return self.items[i]
         
     def pathForField(self, i):
         path = self.path + "/" + self.items[i]
