@@ -11,6 +11,7 @@ import time
 
 #full screen mode can be set or unset in wrappers under the class "Screen" in the constructor
 
+#second comment.
 
 def normalizePath(path):
     path = path.replace("\\", "/")
