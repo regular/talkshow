@@ -134,12 +134,16 @@ class Rect(ColoredVisible):
         )
 
 class Screen(ColoredVisible):    
-    def __init__(self, name, device = "", w = 640, h = 480, color="#00007f"):
+    
+    def __init__(self, name, device = "", w = 2000, h = 2000, color="#00007f"):
         self.window = pyglet.window.Window(caption=name, fullscreen=False, resizable=True)
+        self.window.set_size(w, h)
+        self.window.push_handlers(pyglet.window.event.WindowEventLogger())
         ColoredVisible.__init__(self, None, name, 0, 0, self.w, self.h, color, opacity=1.0)
         self.__children__ = []
         self.event_handler = None
         
+        @self.window.event
         def on_resize(width, height):
             self.extent = width, height
             glViewport(0, 0, width, height)
@@ -242,21 +246,21 @@ class Image(ColoredVisible):
         
         ColoredVisible.__init__(self, p, name, x, y, w, h, color, opacity)
       
-    def _colorComponentGetter( i):
-        def getter(self): 
-            self.sprite.color[i]/255.0
-        return getter
+        def _colorComponentGetter( i):
+            def getter(self): 
+                self.sprite.color[i]/255.0
+            return getter
 
-    def _colorComponentSetter( i):
-        def setter(self, x):
-            components = list(self.sprite.color)
-            components[i] = int(x * 255)
-            self.sprite.color = components
-        return setter
+        def _colorComponentSetter( i):
+            def setter(self, x):
+                components = list(self.sprite.color)
+                components[i] = int(x * 255)
+                self.sprite.color = components
+            return setter
 
-    r = property(_colorComponentGetter(0), _colorComponentSetter(0))
-    g = property(_colorComponentGetter(1), _colorComponentSetter(1))
-    b = property(_colorComponentGetter(2), _colorComponentSetter(2))
+        r = property(_colorComponentGetter(0), _colorComponentSetter(0))
+        g = property(_colorComponentGetter(1), _colorComponentSetter(1))
+        b = property(_colorComponentGetter(2), _colorComponentSetter(2))
     
     def _setOpacity(self, x): self.sprite.opacity = int(x*255.0)
     def _getOpacity(self): return self.sprite.opacity/255.0
@@ -281,22 +285,22 @@ class Text(ColoredVisible):
 
         ColoredVisible.__init__(self, p, name, x, y, self.label.content_width, h, color, opacity)
 
-    def _colorComponentGetter( i):
-        def getter(self): 
-            self.label.color[i]/255.0
-        return getter
+        def _colorComponentGetter( i):
+            def getter(self): 
+                self.label.color[i]/255.0
+            return getter
+            
+        def _colorComponentSetter( i):
+            def setter(self, x):
+                components = list(self.label.color)
+                components[i] = int(x * 255)
+                self.label.color = components
+            return setter
         
-    def _colorComponentSetter( i):
-        def setter(self, x):
-            components = list(self.label.color)
-            components[i] = int(x * 255)
-            self.label.color = components
-        return setter
-        
-    r = property(_colorComponentGetter(0), _colorComponentSetter(0))
-    g = property(_colorComponentGetter(1), _colorComponentSetter(1))
-    b = property(_colorComponentGetter(2), _colorComponentSetter(2))
-    opacity = property(_colorComponentGetter(3), _colorComponentSetter(3))
+        r = property(_colorComponentGetter(0), _colorComponentSetter(0))
+        g = property(_colorComponentGetter(1), _colorComponentSetter(1))
+        b = property(_colorComponentGetter(2), _colorComponentSetter(2))
+        opacity = property(_colorComponentGetter(3), _colorComponentSetter(3))
 
     def _setText(self, t): self.label.text = t
     def _getText(self): return self.label.text

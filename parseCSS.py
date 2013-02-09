@@ -22,6 +22,7 @@ class CSSParser(object):
     #page { width: 50% }
     
     Note that # and . prefixes of css attributes are removed.
+    Note that attributes such as background-color are changed to background_color (dashes replaced by underscores)
     
     percentage values are parsed to floating point numbers, everything else remains a string. (also e.g. 5px remains a string)
     
@@ -46,7 +47,7 @@ class CSSParser(object):
             print "problem with submethod, only generating basicDict"
             raise e
         try:
-            self.style = Struct(**{removeHashesAndDots(rule.selector.as_css()):Struct(**{declaration.name:makeFloatsOutOfPercentages(declaration.value.as_css()) for declaration in rule.declarations  }) for rule in stylesheet.rules})
+            self.style = Struct(**{removeHashesAndDots(rule.selector.as_css()):Struct(**{declaration.name.replace('-','_'):makeFloatsOutOfPercentages(declaration.value.as_css()) for declaration in rule.declarations  }) for rule in stylesheet.rules})
         except Exception, e:
             print "problem with submethod, only generating basicDict and dict"
             raise e

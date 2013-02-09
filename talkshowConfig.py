@@ -11,11 +11,14 @@ import parseCSS
 dir = "prototype"
 filename = 'theme1.css'
 
-def main():
+path = os.path.join(dir, filename)
+parser = parseCSS.CSSParser(path)
+style = parser.style
+
+
+
+def main():    
     
-    
-    path = os.path.join(dir, filename)
-    parser = parseCSS.CSSParser(path)
     print parser.style.leftSide.width
     
 
