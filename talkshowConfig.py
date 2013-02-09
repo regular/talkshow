@@ -11,18 +11,9 @@ import parseCSS
 dir = "prototype"
 filename = 'theme1.css'
 
-path = os.path.join(dir, filename)
-parser = parseCSS.CSSParser(path)
-style = parser.style
+class config(object):
+    def __init__(self):
+        self.path = os.path.join(dir, filename)
+        self.parser = parseCSS.CSSParser(self.path)
+        self.style = self.parser.style
 
-
-
-def main():    
-    
-    print parser.style.leftSide.width
-    
-
-
-
-if __name__ == '__main__':
-    main()

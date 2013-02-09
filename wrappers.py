@@ -10,6 +10,13 @@ from pyglet.media import *
 from rect import *
 from animated_property import AnimatedProperty
 
+import talkshowConfig
+conf = talkshowConfig.config()
+
+style = conf.style
+mydict = conf.parser.dict
+
+
 class Visible(object):
     instanceCount = 0
 
@@ -135,7 +142,7 @@ class Rect(ColoredVisible):
 
 class Screen(ColoredVisible):    
     
-    def __init__(self, name, device = "", w = 2000, h = 2000, color="#00007f"):
+    def __init__(self, name, device = "", w = 800, h = 600, color="#00007f"):
         self.window = pyglet.window.Window(caption=name, fullscreen=False, resizable=True)
         self.window.set_size(w, h)
         self.window.push_handlers(pyglet.window.event.WindowEventLogger())
@@ -283,6 +290,12 @@ class Text(ColoredVisible):
             font_size=h,
             x=0, y=0)
 
+        try:
+            color = style.boxLabel.color
+            print "label color set success"
+        except:
+            print "label color not set."
+
         ColoredVisible.__init__(self, p, name, x, y, self.label.content_width, h, color, opacity)
 
         def _colorComponentGetter( i):
@@ -297,10 +310,10 @@ class Text(ColoredVisible):
                 self.label.color = components
             return setter
         
-        r = property(_colorComponentGetter(0), _colorComponentSetter(0))
-        g = property(_colorComponentGetter(1), _colorComponentSetter(1))
-        b = property(_colorComponentGetter(2), _colorComponentSetter(2))
-        opacity = property(_colorComponentGetter(3), _colorComponentSetter(3))
+#        r = property(_colorComponentGetter(0), _colorComponentSetter(0))
+#        g = property(_colorComponentGetter(1), _colorComponentSetter(1))
+#        b = property(_colorComponentGetter(2), _colorComponentSetter(2))
+#        opacity = property(_colorComponentGetter(3), _colorComponentSetter(3))
 
     def _setText(self, t): self.label.text = t
     def _getText(self): return self.label.text

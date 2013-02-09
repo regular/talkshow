@@ -3,16 +3,13 @@ import math
 import glob
 
 
-
+import wrappers
 from wrappers import *
 from widget import *
 
 from delayed_call import *
 import animated_property
 
-import talkshowConfig
-
-style = talkshowConfig.parser.style
 
 # Constants #todo maybe put them elsewhere in the code.
 
@@ -52,7 +49,16 @@ class Field(Widget):
         border.opacity=0
         bg = self.bg = Rect(self, "bg", 2, 2, w-4, h-4)        
         bg.color = "#7f7f7f"
-        l = self.label = Label(self, "label", x=20, y=20, size=h/5, text=text)        
+        
+        top_padding = style.box.padding[0]/100.0
+        right_padding = style.box.padding[1]/100.0
+        bottom_padding = style.box.padding[2]/100.0
+        left_padding = style.box.padding[3]/100.0
+
+        labelHeight = h*0.5 - top_padding*h - bottom_padding*h
+       
+        
+        l = self.label = Label(self, "label", x=parent.x+parent.w*left_padding, y=parent.y+parent.h*top_padding, size=labelHeight, text=text)        
         self.PROGRESS = 0
 
     def startHighlight(self):
@@ -137,10 +143,11 @@ class Grid(Widget):
         else:
             h = parent.h / rows - 2 # to avoid crash of someone specifies more than 4 rows as max
         
-        
+        # calculate margin
         margin = style.box.margin /100.0
 
         i = 0
+        # define box placement and content (text and icons)
         for r in range(rows):
             for c in range(cols):
                 if i < fieldCount:
@@ -197,6 +204,7 @@ class Talkshow(Widget):
         
         b = self.backButton = Button(self, "backbutton", 20, self.h - 100 + 50, 100, 50, handler = self.back, text='<<')        
         self.homeButton = Button(self, "homebutton", self.w/2 - 100 , self.h - 100 + 50, 200, 50, handler = self.home, text="Start")
+       # self.homeButton = Button(self, "homebutton", self.w/2 - 100 , self.h - 100 + 50, 200, 50, handler = self.home, text="Start", image="")
         self.volumeSlider = Slider(self, "volume", self.w - 200 - 20 , self.h - 100 + 50, 200, 50, action = self.setVolume)
         self.volumeSlider.knobPosition = 1.0
         

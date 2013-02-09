@@ -1,6 +1,20 @@
 from round_rect import RoundRect
-from wrappers import Group, Text, splitColorChannels, mergeColorChannels, Video
+import wrappers
+from wrappers import Group, Text, splitColorChannels, mergeColorChannels, Video, style
 from delayed_call import *
+
+
+import talkshowConfig
+conf = talkshowConfig.config()
+
+FONT_SIZE = 32
+
+style = conf.style
+mydict = conf.parser.dict
+print mydict
+
+print style.boxLabel
+print mydict['boxLabel']['color']
    
 class Widget(Group):
     def __init__(self, p, name, x = 0, y = 0, w = 10, h = 10, ox = 0, oy = 0):
@@ -58,14 +72,33 @@ class Widget(Group):
                         child.onMouseMove(x - child.x, y - child.y)
                         
 
-class Label(Widget):
-    FONT = "Helvetica"
-    WEIGHT = -100
-    def __init__(self, parent, name, x, y, size, text=None, font=None, color="#ffffff"):
-        self.shadow = Text(None, "shadow", 2, 2, h=size, text=text if text else name, color="#000000", opacity = 0.4, font=font if font else self.FONT) 
-        self.fg = Text(None, "text", 0,0, h=size, text=text if text else name, color=color, opacity=0.9,font=font if font else self.FONT) 
 
-        Widget.__init__(self, parent, name, x = x, y = y, w = self.shadow.w + 2, h = self.shadow.h + 2)
+class Label(Widget):
+    def __init__(self, parent, name, x, y, size, text=None, font=None, color="#ffffff"):
+        
+        self.FONT = "Helvetica"
+        try:
+            self.FONT = style.boxLabel.font_family.split(',')[0]
+            print "font set success"
+        except:
+            print "font not set"
+        self.WEIGHT = -100
+        try:
+            self.col = style.boxLabel.color
+            print "font color set success"
+        except: 
+            print "font color failed."
+        
+        self.font_size = FONT_SIZE
+        try: self.font_size = int(style.boxLabel.font_size.replace('px',''))
+        except: pass
+        
+        #self.shadow = Text(None, "shadow", 2, 2, h=size, text=text if text else name, color=self.col, opacity = 0.4, font=font if font else self.FONT) 
+        self.fg = Text(None, "text", 0,0, h=self.font_size, text=text if text else name, color=self.col, opacity=1,font=font if font else self.FONT) 
+        self.shadow = self.fg
+        
+        #Widget.__init__(self, parent, name, x = x, y = y, w = self.shadow.w + 2, h = self.shadow.h + 2)
+        Widget.__init__(self, parent, name, x = x, y = y, w = self.shadow.w , h = size)
         self.shadow.parent = self.fg.parent = self
 
     def doLayout(self, w, h):
@@ -368,14 +401,17 @@ class Videoplayer(Widget):
         self.slider.y = h - self.slider.h
         
 class Button(Widget):
-    def __init__(self, parent, name, x, y, w, h, text="button", handler = None):
+    def __init__(self, parent, name, x, y, w, h, text="button", handler = None, image=None):
         Widget.__init__(self, parent, name, x, y, w, h)        
         self.handler = handler
         self.container = Widget(self, "container", 0,0, self.w, self.h)
         self.outline = Box(self.container, "outline", w, h, s = EngraveSettingsOuter)        
         b = self.bar = Box(self.container, "bar", w, h, s=BarSettings)
         b.x, b.y = 1,1
-        
+        if image:
+            pass#TODO
+        else:
+            pass#todo load the label
         label = self.label = Label(self,  "label", 0, 0, size=h*2.2/4.0, text = text)
         label.x = (self.w - label.w) / 2
         label.y = (self.h - label.h) / 2 
