@@ -9,11 +9,8 @@ from delayed_call import *
 import animated_property
 import time
 
-<<<<<<< HEAD
+
 #full screen mode can be set or unset in wrappers under the class "Screen" in the constructor
-=======
-#comment
->>>>>>> branch 'master' of https://github.com/jschaul/talkshow.git
 
 #second comment.
 
