@@ -14,20 +14,22 @@ body {
 #leftSide {
 	float: left;
 	height: 100%;
-	width: 10%
+	padding: 1.5% 0% 0% 2%;
+	width: 8%;
 }
 
 #main {
     float: left;
     height: 100%;
-    padding-top: 0.8%;
-    width: 80%;
+    padding: 1%;
+    width: 78%;
 }
 
 #rightSide {
-	float: right;
+	float: left;
 	height: 100%;
-	width: 10%
+	padding: 1.5% 2% 0% 0%;
+	width: 8%
 }
 
 .nofloat {
@@ -67,12 +69,39 @@ body {
 	background-color: #A2FFFF;
 }
 
-#alert {
-	background-image: url("./icons/coquette/64x64/");
+
+.command {
+	padding: 1% 3%;
+	text-align: center;
+}
+
+.commandImage {
+	height: 65px;
+	width: 65px;
+}
+
+#accept {
+	background-image: url("./icons/coquette/64x64/accept.png");
 }
 
 #back {
 	background-image: url("./icons/coquette/64x64/back.png");
+}
+
+#block {
+	background-image: url("./icons/coquette/64x64/block.png");
+}
+
+#deny {
+	background-image: url("./icons/coquette/64x64/delete.png");
+}
+
+#down {
+	background-image: url("./icons/coquette/64x64/download_1.png");
+}
+
+#first {
+	background-image: url("./icons/coquette/64x64/first.png");
 }
 
 #help {
@@ -82,3 +111,60 @@ body {
 #home {
 	background-image: url("./icons/coquette/64x64/home.png");
 }
+
+#last {
+	background-image: url("./icons/coquette/64x64/last.png");
+}
+
+#next {
+	background-image: url("./icons/coquette/64x64/next.png");
+}
+
+#pause {
+	background-image: url("./icons/coquette/64x64/pause.png");
+}
+
+#play {
+	background-image: url("./icons/coquette/64x64/play.png");
+}
+
+#playNext {
+	background-image: url("./icons/coquette/64x64/next_2.png");
+}
+
+#playPrevious {
+	background-image: url("./icons/coquette/64x64/previous.png");
+}
+
+#repeat {
+	background-image: url("./icons/coquette/64x64/repeat.png");
+}
+
+#settings {
+	background-image: url("./icons/coquette/64x64/process.png");
+}
+
+#shutDown {
+	background-image: url("./icons/coquette/64x64/shut_down.png");
+}
+
+#stop {
+	background-image: url("./icons/coquette/64x64/stop.png");
+}
+
+#up {
+	background-image: url("./icons/coquette/64x64/up.png");
+}
+
+#volumeDown {
+	background-image: url("./icons/coquette/64x64/volume_down.png");
+}
+
+#volumeUp {
+	background-image: url("./icons/coquette/64x64/volume_up.png");
+}
+
+#warning {
+	background-image: url("./icons/coquette/64x64/warning.png");
+}
+
