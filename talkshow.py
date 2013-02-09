@@ -138,12 +138,13 @@ class Grid(Widget):
             h = parent.h / rows - 2 # to avoid crash of someone specifies more than 4 rows as max
         
         
+        margin = style.box.margin /100.0
 
         i = 0
         for r in range(rows):
             for c in range(cols):
                 if i < fieldCount:
-                    field = Field(self, w=w-4, h=h-4, x=w*c, y=h*r, text=delegate.getFieldText(i))
+                    field = Field(self, w=w, h=h, x=(w+w*margin)*c, y=(h+h*margin)*r, text=delegate.getFieldText(i))
                     icon = delegate.getFieldIcon(i)
                     if icon != None:
                         field.icon = icon
