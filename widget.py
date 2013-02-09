@@ -1,5 +1,5 @@
 from round_rect import RoundRect
-from wrappers import *
+from wrappers import Group, Text, splitColorChannels, mergeColorChannels, Video
 from delayed_call import *
    
 class Widget(Group):

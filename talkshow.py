@@ -1,13 +1,17 @@
 ﻿import os
 import math
-from wrappers import *
-from widget import *
 import glob
 
-import pyglet
+
+
+from wrappers import *
+from widget import *
+
 from delayed_call import *
 import animated_property
-import time
+
+
+#from pyglet.media import avbin
 
 
 #full screen mode can be set or unset in wrappers under the class "Screen" in the constructor
@@ -227,9 +231,18 @@ class Talkshow(Widget):
             return
         
         sounds = glob.glob(path+"/*.wav")
+        if not sounds: sounds = glob.glob(path+"/*.mp3")
         print "sounds", sounds
         if sounds:
             path = normalizePath(sounds[0])
+            path = "regenwald.wav"
+            #path = sounds[0]
+            if os.path.isfile(path):
+                print "correct path"
+                #music = pyglet.resource.media(path)
+                #music.play()
+            else:
+                print "nope, not correct path."
             #print path
             #r = Resource(path)
             #print r._obj.details
