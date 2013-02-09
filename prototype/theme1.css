@@ -67,7 +67,7 @@ body {
 .boxLabel {
     color: #1E1E1E;
     font-family: Verdana,sans-serif;
-    font-size: x-large;
+    font-size: 24px;
     font-weight: 800;
     text-align: center;
     text-transform: uppercase;
@@ -163,98 +163,98 @@ div:hover.commandImage {
 }
 
 #accept {
-	background-image: url("./icons/coquette/64x64/accept.png");
+	background-image: url("./style/icons/coquette/64x64/accept.png");
 }
 
 #back {
-	background-image: url("./icons/coquette/64x64/back.png");
+	background-image: url("./style/icons/coquette/64x64/back.png");
 }
 
 #block {
-	background-image: url("./icons/coquette/64x64/block.png");
+	background-image: url("./style/icons/coquette/64x64/block.png");
 }
 
 #deny {
-	background-image: url("./icons/coquette/64x64/delete.png");
+	background-image: url("./style/icons/coquette/64x64/delete.png");
 }
 
 #down {
-	background-image: url("./icons/coquette/64x64/download_1.png");
+	background-image: url("./style/icons/coquette/64x64/download_1.png");
 }
 
 #first {
-	background-image: url("./icons/coquette/64x64/first.png");
+	background-image: url("./style/icons/coquette/64x64/first.png");
 }
 
 #help {
-	background-image: url("./icons/coquette/64x64/help_ballon.png");
+	background-image: url("./style/icons/coquette/64x64/help_ballon.png");
 }
 
 #home {
-	background-image: url("./icons/coquette/64x64/home.png");
+	background-image: url("./style/icons/coquette/64x64/home.png");
 }
 
 #last {
-	background-image: url("./icons/coquette/64x64/last.png");
+	background-image: url("./style/icons/coquette/64x64/last.png");
 }
 
 #next {
-	background-image: url("./icons/coquette/64x64/next.png");
+	background-image: url("./style/icons/coquette/64x64/next.png");
 }
 
 #pause {
-	background-image: url("./icons/coquette/64x64/pause.png");
+	background-image: url("./style/icons/coquette/64x64/pause.png");
 }
 
 #play {
-	background-image: url("./icons/coquette/64x64/play.png");
+	background-image: url("./style/icons/coquette/64x64/play.png");
 }
 
 #playNext {
-	background-image: url("./icons/coquette/64x64/next_2.png");
+	background-image: url("./style/icons/coquette/64x64/next_2.png");
 }
 
 #playPrevious {
-	background-image: url("./icons/coquette/64x64/previous.png");
+	background-image: url("./style/icons/coquette/64x64/previous.png");
 }
 
 #repeat {
-	background-image: url("./icons/coquette/64x64/repeat.png");
+	background-image: url("./style/icons/coquette/64x64/repeat.png");
 }
 
 #settings {
-	background-image: url("./icons/coquette/64x64/process.png");
+	background-image: url("./style/icons/coquette/64x64/process.png");
 }
 
 #shutDown {
-	background-image: url("./icons/coquette/64x64/shut_down.png");
+	background-image: url("./style/icons/coquette/64x64/shut_down.png");
 }
 
 #stop {
-	background-image: url("./icons/coquette/64x64/stop.png");
+	background-image: url("./style/icons/coquette/64x64/stop.png");
 }
 
 #up {
-	background-image: url("./icons/coquette/64x64/up.png");
+	background-image: url("./style/icons/coquette/64x64/up.png");
 }
 
 #volumeDown {
-	background-image: url("./icons/coquette/64x64/volume_down.png");
+	background-image: url("./style/icons/coquette/64x64/volume_down.png");
 }
 
 #volumeUp {
-	background-image: url("./icons/coquette/64x64/volume_up.png");
+	background-image: url("./style/icons/coquette/64x64/volume_up.png");
 }
 
 #warning {
-	background-image: url("./icons/coquette/64x64/warning.png");
+	background-image: url("./style/icons/coquette/64x64/warning.png");
 }
 
 
 #music {
-	background-image: url("./icons/coquette/64x64/music.png");
+	background-image: url("./style/icons/coquette/64x64/music.png");
 }
 
 #video {
-	background-image: url("./icons/coquette/64x64/warning.png");
+	background-image: url("./style/icons/coquette/64x64/warning.png");
 }
