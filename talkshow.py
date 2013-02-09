@@ -162,6 +162,7 @@ class Talkshow(Widget):
         
         self.count = 9        
         
+        # TODO: FIX in order to avoid crashes
         self.pathPrefix = "./Content/"
         self.path= ""
         self.grid = None
@@ -311,6 +312,7 @@ class Talkshow(Widget):
 
 screen = Screen("Talkshow", "", 1280, 768)
 talkshow = Talkshow(screen)
+# TODO: Add a method in Talkshow object to test if all is well configured.
 
 #tubifex.keyboard_sink = talkshow.key_sink
 screen.event_handler = talkshow
