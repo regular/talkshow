@@ -3,6 +3,8 @@ import sys
 from sys import getrefcount
 import string
 import pyglet
+
+pyglet.options['audio'] = ('directsound', 'openal', 'silent')
 from pyglet.gl import *
 from pyglet.media import *
 from rect import *
@@ -133,7 +135,7 @@ class Rect(ColoredVisible):
 
 class Screen(ColoredVisible):    
     def __init__(self, name, device = "", w = 640, h = 480, color="#00007f"):
-        self.window = pyglet.window.Window(caption=name, fullscreen=0)
+        self.window = pyglet.window.Window(caption=name, fullscreen=False, resizable=True)
         ColoredVisible.__init__(self, None, name, 0, 0, self.w, self.h, color, opacity=1.0)
         self.__children__ = []
         self.event_handler = None
