@@ -10,13 +10,29 @@ from widget import *
 from delayed_call import *
 import animated_property
 
+import talkshowConfig
+
+style = talkshowConfig.parser.style
+
+# Constants #todo maybe put them elsewhere in the code.
+
+COLUMNS = 2
+MAX_ROW_NUMBER = 4
 
 #from pyglet.media import avbin
 
 
 #full screen mode can be set or unset in wrappers under the class "Screen" in the constructor
 
-#second comment.
+
+
+def popupErrorMessage(string):
+    #TODO popup
+    print string
+
+
+
+
 
 def normalizePath(path):
     path = path.replace("\\", "/")
@@ -86,6 +102,7 @@ class Field(Widget):
         self.bg.opacity = o        
     opacity = property(_getOPACITY, _setOPACITY)
 
+
 class Grid(Widget):
     instanceCount = 0
     
@@ -93,17 +110,34 @@ class Grid(Widget):
         Widget.__init__(self, parent, "Grid", w = parent.w, h = parent.h)
         self.delegate = delegate
         self.fields = []
-        cols = round(math.sqrt(fieldCount) * 1) #parent.w / parent.h)
-        rows = fieldCount / cols
-        if rows != int(rows):
-            rows += 1
-
-        rows = int(rows)
-        cols = int(cols)
-        #print cols, rows
-
-        w = int(parent.w / cols)
-        h = int(parent.h / rows)
+    
+        if fieldCount == 1:
+            cols = 1
+        elif fieldCount == 0:
+            popupErrorMessage("!ERROR: No field")
+        
+        # calculate number of rows and columns
+        cols = int(COLUMNS)
+        rows = int(math.ceil(fieldCount / (cols * 1.0))) # number of rows large enough for all elements. 
+        if rows > MAX_ROW_NUMBER :
+            rows = MAX_ROW_NUMBER # 8 is the maximum number of rows allowed.
+            
+        # calculate box heigth and width
+        boxheight = {1:style.arrayRows1.height/100.0, 
+                  2:style.arrayRows2.height/100.0, 
+                  3:style.arrayRows3.height/100.0, 
+                  4:style.arrayRows4.height/100.0, 
+                  }  
+        
+        w = int(parent.w * style.box.width / 100.0)      
+        if cols == 1:
+            w = w * COLUMNS #full size if just one column
+        if boxheight.has_key(rows):
+            h = int(parent.h * boxheight[rows])
+        else:
+            h = parent.h / rows - 2 # to avoid crash of someone specifies more than 4 rows as max
+        
+        
 
         i = 0
         for r in range(rows):
@@ -117,7 +151,8 @@ class Grid(Widget):
                         field.doLayout(field.w, field.h)      
                     field.progress=0                
                     field.animate("progress", 0, 1, 0, 250)
-                    field.color = "#%2X%2X00" % (int(255 * (c+1)/cols), int(255 * (r+1)/rows))
+                    #field.color = "#%2X%2X00" % (int(255 * (c+1)/cols), int(255 * (r+1)/rows))
+                    field.color = style.box.background_color
                     field.index = i
                     self.fields.append(field)
                     i += 1
@@ -174,7 +209,7 @@ class Talkshow(Widget):
         self.gridFromPath()
         #self.newGrid()
         
-        l = self.label = Label(self, "title", x=20, y=10, size=20, text = "KommHelp Talkshow", color = "#0030ff")        
+        l = self.label = Label(self, "title", x=20, y=10, size=20, text = "KommHelp Talkshow ", color = "#0030ff")        
         #l.animate("progress", 0, 1, 0, 3000)
         
     def quit(self):
@@ -235,12 +270,8 @@ class Talkshow(Widget):
         print "sounds", sounds
         if sounds:
             path = normalizePath(sounds[0])
-            path = "regenwald.wav"
-            #path = sounds[0]
             if os.path.isfile(path):
                 print "correct path"
-                #music = pyglet.resource.media(path)
-                #music.play()
             else:
                 print "nope, not correct path."
             #print path
