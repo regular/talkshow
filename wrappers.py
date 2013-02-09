@@ -133,7 +133,7 @@ class Rect(ColoredVisible):
 
 class Screen(ColoredVisible):    
     def __init__(self, name, device = "", w = 640, h = 480, color="#00007f"):
-        self.window = pyglet.window.Window(caption=name, fullscreen=1)
+        self.window = pyglet.window.Window(caption=name, fullscreen=0)
         ColoredVisible.__init__(self, None, name, 0, 0, self.w, self.h, color, opacity=1.0)
         self.__children__ = []
         self.event_handler = None
@@ -240,12 +240,12 @@ class Image(ColoredVisible):
         
         ColoredVisible.__init__(self, p, name, x, y, w, h, color, opacity)
       
-    def _colorComponentGetter(i):
-         def getter(self): 
-             self.sprite.color[i]/255.0
-         return getter
+    def _colorComponentGetter( i):
+        def getter(self): 
+            self.sprite.color[i]/255.0
+        return getter
 
-    def _colorComponentSetter(i):
+    def _colorComponentSetter( i):
         def setter(self, x):
             components = list(self.sprite.color)
             components[i] = int(x * 255)
@@ -279,12 +279,12 @@ class Text(ColoredVisible):
 
         ColoredVisible.__init__(self, p, name, x, y, self.label.content_width, h, color, opacity)
 
-    def _colorComponentGetter(i):
+    def _colorComponentGetter( i):
         def getter(self): 
             self.label.color[i]/255.0
         return getter
         
-    def _colorComponentSetter(i):
+    def _colorComponentSetter( i):
         def setter(self, x):
             components = list(self.label.color)
             components[i] = int(x * 255)
