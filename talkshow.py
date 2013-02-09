@@ -190,6 +190,7 @@ class Talkshow(Widget):
     def __init__(self, screen):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)     
         self.bg = Rect(self, "bg",  w = self.w , h=self.h-100, x=0, y=40, color="#202020")
+        #self.bg = Rect(self, "bg",  w = self.w , h=self.h-100, x=0, y=40, color=style.page.background_color)
         self.gridContainer = Widget(self, "gridContainer", w = self.w - 20, h=self.h-20-100, x=10, y=50)
 
         b = self.quitButton = Button(self, "quitbutton", self.w - 40, 0, 40, 40, handler = self.quit, text='X')        
@@ -209,6 +210,9 @@ class Talkshow(Widget):
         self.videoplayer = None
         self.gridFromPath()
         #self.newGrid()
+        
+        warningImage = pyglet.image.load(style.warning.background_image[5:-2])
+        
         
         l = self.label = Label(self, "title", x=20, y=10, size=20, text = "KommHelp Talkshow ", color = "#0030ff")        
         #l.animate("progress", 0, 1, 0, 3000)
@@ -355,7 +359,9 @@ class Talkshow(Widget):
 
 #environment.set("character_spacing", -2)                    
 
-screen = Screen("Talkshow", "", 1280, 768)
+screen = Screen("Talkshow", "",
+                int(style.page.width.replace('px','')),
+                int(style.page.height.replace('px','')))
 talkshow = Talkshow(screen)
 # TODO: Add a method in Talkshow object to test if all is well configured.
 

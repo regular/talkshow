@@ -8,7 +8,7 @@ Created on 9 Feb 2013
 import os
 import parseCSS
 
-dir = "prototype"
+dir = "style"
 filename = 'theme1.css'
 
 path = os.path.join(dir, filename)
