@@ -1,20 +1,6 @@
 from round_rect import RoundRect
-import wrappers
-from wrappers import Group, Text, splitColorChannels, mergeColorChannels, Video, style
+from wrappers import *
 from delayed_call import *
-
-
-import talkshowConfig
-conf = talkshowConfig.config()
-
-FONT_SIZE = 32
-
-style = conf.style
-mydict = conf.parser.dict
-print mydict
-
-print style.boxLabel
-print mydict['boxLabel']['color']
    
 class Widget(Group):
     def __init__(self, p, name, x = 0, y = 0, w = 10, h = 10, ox = 0, oy = 0):
@@ -72,33 +58,14 @@ class Widget(Group):
                         child.onMouseMove(x - child.x, y - child.y)
                         
 
-
 class Label(Widget):
+    FONT = "Helvetica"
+    WEIGHT = -100
     def __init__(self, parent, name, x, y, size, text=None, font=None, color="#ffffff"):
+        self.shadow = Text(None, "shadow", 2, 2, h=size*0.75, text=text if text else name, color="#000000", opacity = 0.4, font=font if font else self.FONT)
+        self.fg = Text    (None, "text",   0, 0, h=size*0.75, text=text if text else name, color=color, opacity=0.9,font=font if font else self.FONT) 
         
-        self.FONT = "Helvetica"
-        try:
-            self.FONT = style.boxLabel.font_family.split(',')[0]
-            print "font set success"
-        except:
-            print "font not set"
-        self.WEIGHT = -100
-        try:
-            self.col = style.boxLabel.color
-            print "font color set success"
-        except: 
-            print "font color failed."
-        
-        self.font_size = FONT_SIZE
-        try: self.font_size = int(style.boxLabel.font_size.replace('px',''))
-        except: pass
-        
-        #self.shadow = Text(None, "shadow", 2, 2, h=size, text=text if text else name, color=self.col, opacity = 0.4, font=font if font else self.FONT) 
-        self.fg = Text(None, "text", 0,0, h=self.font_size, text=text if text else name, color=self.col, opacity=1,font=font if font else self.FONT) 
-        self.shadow = self.fg
-        
-        #Widget.__init__(self, parent, name, x = x, y = y, w = self.shadow.w + 2, h = self.shadow.h + 2)
-        Widget.__init__(self, parent, name, x = x, y = y, w = self.shadow.w , h = size)
+        Widget.__init__(self, parent, name, x = x, y = y, w = self.shadow.w + 2, h = self.shadow.h + 2)
         self.shadow.parent = self.fg.parent = self
 
     def doLayout(self, w, h):
@@ -257,6 +224,9 @@ class KnobSettings:
     inner_radius = 10
     outer_radius = 12
     
+    #inner_radius = 15
+    #outer_radius = 18
+    
     shadow_offset = 5
     shadow_blur = 4
     
@@ -305,50 +275,52 @@ class Scrollbar(Widget):
     def __init__(self, parent, name, x, y, w, h, action=None):
         Widget.__init__(self, parent, name, x, y, w, h)        
         self.outline = Box(self, "outline", w, h, s = EngraveSettingsOuter)        
-        b = self.bar = Box(self, "bar", w/2, 39, s=BarSettings)
+        b = self.bar = Box(self, "bar", 39, h/2, s=BarSettings)
         b.x, b.y = 2,2
         self.dragOrigin = None
         self.action = action
         self.value = None
-        self.minmax = (2, self.outline.x + self.outline.w - self.bar.w + 2)
+        self.minmax = (self.outline.y + self.outline.h - self.bar.h + 2,2)
        
     def onMouseButtonDown(self, button, x, y):
-        #print "Scrollbar click at ", x, y
- 
-        if x > self.bar.x + self.bar.w:
-            self.bar.x += self.bar.w
+        
+        if y > self.bar.y + self.bar.h:
+            self.bar.y += self.bar.h
             self.enforceConstrains()
-        elif x < self.bar.x:
-            self.bar.x -= self.bar.w
+        elif y < self.bar.y:
+            self.bar.y -= self.bar.h
             self.enforceConstrains()
-        elif x > self.bar.x and x < self.bar.x + self.bar.w:
+        elif y > self.bar.y and y < self.bar.y + self.bar.h:
             self.captureMouse()
-            self.originalBarX = self.bar.x
-            self.dragOrigin = x
+            self.originalBarY = self.bar.y
+            self.dragOrigin = y
     
     def onMouseButtonUp(self, button, x, y):
         self.dragOrigin = None
         self.releaseMouse()
         
     def onMouseMove(self, x, y):
+            
         if self.dragOrigin != None:
-            self.bar.x = self.originalBarX + x - self.dragOrigin
+            self.bar.y = self.originalBarY + y - self.dragOrigin
             self.enforceConstrains()
 
     def enforceConstrains(self):
+            
         b = self.bar
-        minx, maxx = self.minmax
-        if b.x < minx: b.x = minx
-        if b.x > maxx: b.x = maxx
-        value = float(b.x - minx) / (maxx - minx)
+        miny, maxy = self.minmax
+        if b.y < miny: b.y = miny
+        if b.y > maxy: b.y = maxy
+        value = 1.0 - (float(b.y - miny) / (maxy - miny))
         if value != self.value:
             if self.action != None:
                 self.action(value)
-            self.value = value 
+            self.value = value  
+            
             
     def setValue(self, v):
-        minx, maxx = self.minmax
-        self.bar.x = int(minx + (maxx - minx) * v)
+        miny, maxy = self.minmax
+        self.bar.y = int(miny + (maxy - miny) * v)
         self.enforceConstrains()
 
     def getValue(self):
@@ -360,13 +332,16 @@ class Slider(Scrollbar):
     def __init__(self, parent, name, x, y, w, h, action = None):
         Scrollbar.__init__(self, parent, name, x, y, w, h, action)        
         self.outline = Box(self, "outline", w, h, s = EngraveSettingsOuter)
-        t = self.track = Box(self, "track", w*3/4, 8, s = EngraveSettingsInner)
-        t.x = w / 8
-        t.y = h /2 - 4
+        
+        t = self.track = Box(self, "track", 8, h*3/4, s = EngraveSettingsInner)
+        t.y = h / 8
+        t.x = w /2 - 4
+        
         k = self.bar = Box(self, "knob", 33, 33, s=KnobSettings)
-        k.x = t.x - 15
-        k.y = t.y - 12
-        self.minmax = (self.track.x - 15, self.track.x + self.track.w - self.bar.w + 2 + 15 )
+        k.x = t.x - 12
+        k.y = t.y - 15
+        
+        self.minmax = (self.track.y - 15, self.track.y + self.track.h - self.bar.h + 2 + 15)
 
 
 class Videoplayer(Widget):
@@ -401,21 +376,22 @@ class Videoplayer(Widget):
         self.slider.y = h - self.slider.h
         
 class Button(Widget):
-    def __init__(self, parent, name, x, y, w, h, text="button", handler = None, image=None):
+    def __init__(self, parent, name, x, y, w, h, text="button", handler = None):
         Widget.__init__(self, parent, name, x, y, w, h)        
         self.handler = handler
         self.container = Widget(self, "container", 0,0, self.w, self.h)
         self.outline = Box(self.container, "outline", w, h, s = EngraveSettingsOuter)        
         b = self.bar = Box(self.container, "bar", w, h, s=BarSettings)
         b.x, b.y = 1,1
-        if image:
-            pass#TODO
-        else:
-            pass#todo load the label
+        
         label = self.label = Label(self,  "label", 0, 0, size=h*2.2/4.0, text = text)
+        #print 'Self.w: ',self.w
+        #print 'label.w: ',label.w
+        #print 'Self.h: ',self.h
+        #print 'label.h: ',label.h
         label.x = (self.w - label.w) / 2
         label.y = (self.h - label.h) / 2 
-        #label.text = text        
+        self.text = text        
         label.progress=1
        
     def onMouseButtonDown(self, button, x, y):

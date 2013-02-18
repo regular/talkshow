@@ -3,25 +3,10 @@ import sys
 from sys import getrefcount
 import string
 import pyglet
-
-
-
-import talkshowConfig
-
-style = talkshowConfig.config().parser.style
-
-pyglet.options['audio'] = ('directsound', 'openal', 'silent')
 from pyglet.gl import *
 from pyglet.media import *
 from rect import *
 from animated_property import AnimatedProperty
-
-import talkshowConfig
-conf = talkshowConfig.config()
-
-style = conf.style
-mydict = conf.parser.dict
-
 
 class Visible(object):
     instanceCount = 0
@@ -32,7 +17,7 @@ class Visible(object):
         self.w = w
         self.h = h
         self.name = name
-
+        
         self.__parent__ = None
         self.setParent(p)
         
@@ -147,16 +132,14 @@ class Rect(ColoredVisible):
         )
 
 class Screen(ColoredVisible):    
-    
-    def __init__(self, name, device = "", w = 800, h = 600, color="#00007f"):
-        self.window = pyglet.window.Window(caption=name, fullscreen=False, resizable=True)
-        self.window.set_size(w, h)
-        self.window.push_handlers(pyglet.window.event.WindowEventLogger())
+    def __init__(self, name, device = "", w = 640, h = 480, color="#00007f"):
+        
+        self.window = pyglet.window.Window(caption=name, fullscreen=1, resizable=True)
+                
         ColoredVisible.__init__(self, None, name, 0, 0, self.w, self.h, color, opacity=1.0)
         self.__children__ = []
         self.event_handler = None
         
-        @self.window.event
         def on_resize(width, height):
             self.extent = width, height
             glViewport(0, 0, width, height)
@@ -174,20 +157,12 @@ class Screen(ColoredVisible):
         @self.window.event
         def on_draw():
             self.window.clear()
-            
+
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             glEnable(GL_BLEND)
 
             for x in self.__children__:
                 x.draw()
-            
-            image = pyglet.image.load(style.warning.background_image[5:-2])
-            warningSprite = pyglet.sprite.Sprite(image, 0, 0)
-            warningSprite.draw()
-
-            image = pyglet.image.load(style.home.background_image[5:-2])
-            homeSprite = pyglet.sprite.Sprite(image, warningSprite.x + int(style.warning.height.replace('px','')), 0)
-            homeSprite.draw()
 
             glDisable(GL_BLEND)
                      
@@ -267,21 +242,21 @@ class Image(ColoredVisible):
         
         ColoredVisible.__init__(self, p, name, x, y, w, h, color, opacity)
       
-        def _colorComponentGetter( i):
-            def getter(self): 
-                self.sprite.color[i]/255.0
-            return getter
+    def _colorComponentGetter(i):
+         def getter(self): 
+             self.sprite.color[i]/255.0
+         return getter
 
-        def _colorComponentSetter( i):
-            def setter(self, x):
-                components = list(self.sprite.color)
-                components[i] = int(x * 255)
-                self.sprite.color = components
-            return setter
+    def _colorComponentSetter(i):
+        def setter(self, x):
+            components = list(self.sprite.color)
+            components[i] = int(x * 255)
+            self.sprite.color = components
+        return setter
 
-        r = property(_colorComponentGetter(0), _colorComponentSetter(0))
-        g = property(_colorComponentGetter(1), _colorComponentSetter(1))
-        b = property(_colorComponentGetter(2), _colorComponentSetter(2))
+    r = property(_colorComponentGetter(0), _colorComponentSetter(0))
+    g = property(_colorComponentGetter(1), _colorComponentSetter(1))
+    b = property(_colorComponentGetter(2), _colorComponentSetter(2))
     
     def _setOpacity(self, x): self.sprite.opacity = int(x*255.0)
     def _getOpacity(self): return self.sprite.opacity/255.0
@@ -302,32 +277,27 @@ class Text(ColoredVisible):
             text if text != None else name,
             font_name=font if font != None else "Helvetica",
             font_size=h,
+            anchor_y = 'center',
             x=0, y=0)
-
-        try:
-            color = style.boxLabel.color
-            print "label color set success"
-        except:
-            print "label color not set."
-
+        
         ColoredVisible.__init__(self, p, name, x, y, self.label.content_width, h, color, opacity)
 
-        def _colorComponentGetter( i):
-            def getter(self): 
-                self.label.color[i]/255.0
-            return getter
-            
-        def _colorComponentSetter( i):
-            def setter(self, x):
-                components = list(self.label.color)
-                components[i] = int(x * 255)
-                self.label.color = components
-            return setter
+    def _colorComponentGetter(i):
+        def getter(self): 
+            self.label.color[i]/255.0
+        return getter
         
-#        r = property(_colorComponentGetter(0), _colorComponentSetter(0))
-#        g = property(_colorComponentGetter(1), _colorComponentSetter(1))
-#        b = property(_colorComponentGetter(2), _colorComponentSetter(2))
-#        opacity = property(_colorComponentGetter(3), _colorComponentSetter(3))
+    def _colorComponentSetter(i):
+        def setter(self, x):
+            components = list(self.label.color)
+            components[i] = int(x * 255)
+            self.label.color = components
+        return setter
+        
+    r = property(_colorComponentGetter(0), _colorComponentSetter(0))
+    g = property(_colorComponentGetter(1), _colorComponentSetter(1))
+    b = property(_colorComponentGetter(2), _colorComponentSetter(2))
+    opacity = property(_colorComponentGetter(3), _colorComponentSetter(3))
 
     def _setText(self, t): self.label.text = t
     def _getText(self): return self.label.text
@@ -400,13 +370,15 @@ class ClippingContainer(Visible):
             glDisable(GL_SCISSOR_TEST)
         else:
             glScissor(old_scissor[0], old_scissor[1], old_scissor[2], old_scissor[3])
+            
                           
 class Group(ClippingContainer):
     instanceCount = 0
     
     def __init__(self, p, name, x=0, y=0, w=10, h=10, ox=0, oy=0, clipChildren=True):
         self._W, self._H = w, h
-        ClippingContainer.__init__(self, p, name, x, y, w, h, ox, oy, clipChildren)     
+        ClippingContainer.__init__(self, p, name, x, y, w, h*2 if hasattr(self,'fg') else h, ox, oy, clipChildren)     
+        
         self.__children__ = []
 
     def __addChild__(self, c):
@@ -435,6 +407,7 @@ class Group(ClippingContainer):
     def _setW(self, value):
         if self._W == value: return
         self._W = value
+        #print value
         self.doLayout(self._W, self._H)
     w = property(_getW, _setW)
 
