@@ -3,6 +3,14 @@ import sys
 from sys import getrefcount
 import string
 import pyglet
+
+
+
+import talkshowConfig
+
+style = talkshowConfig.config().parser.style
+
+#?? pyglet.options['audio'] = ('directsound', 'openal', 'silent')
 from pyglet.gl import *
 from pyglet.media import *
 from rect import *
@@ -132,14 +140,16 @@ class Rect(ColoredVisible):
         )
 
 class Screen(ColoredVisible):    
-    def __init__(self, name, device = "", w = 640, h = 480, color="#00007f"):
-        
-        self.window = pyglet.window.Window(caption=name, fullscreen=1, resizable=True)
-                
+    
+    def __init__(self, name, device = "", w = 800, h = 600, color="#00007f"):
+        self.window = pyglet.window.Window(caption=name, fullscreen=False, resizable=True)
+        self.window.set_size(w, h)
+        ##?? self.window.push_handlers(pyglet.window.event.WindowEventLogger())
         ColoredVisible.__init__(self, None, name, 0, 0, self.w, self.h, color, opacity=1.0)
         self.__children__ = []
         self.event_handler = None
         
+        @self.window.event
         def on_resize(width, height):
             self.extent = width, height
             glViewport(0, 0, width, height)
@@ -163,6 +173,14 @@ class Screen(ColoredVisible):
 
             for x in self.__children__:
                 x.draw()
+            
+            image = pyglet.image.load(style.warning.background_image[5:-2])
+            warningSprite = pyglet.sprite.Sprite(image, 0, 0)
+            warningSprite.draw()
+
+            image = pyglet.image.load(style.home.background_image[5:-2])
+            homeSprite = pyglet.sprite.Sprite(image, warningSprite.x + int(style.warning.height.replace('px','')), 0)
+            homeSprite.draw()
 
             glDisable(GL_BLEND)
                      
