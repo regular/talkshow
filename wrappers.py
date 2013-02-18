@@ -4,6 +4,12 @@ from sys import getrefcount
 import string
 import pyglet
 
+
+
+import talkshowConfig
+
+style = talkshowConfig.parser.style
+
 pyglet.options['audio'] = ('directsound', 'openal', 'silent')
 from pyglet.gl import *
 from pyglet.media import *
@@ -168,12 +174,20 @@ class Screen(ColoredVisible):
         @self.window.event
         def on_draw():
             self.window.clear()
-
+            
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             glEnable(GL_BLEND)
 
             for x in self.__children__:
                 x.draw()
+            
+            image = pyglet.image.load(style.warning.background_image[5:-2])
+            warningSprite = pyglet.sprite.Sprite(image, 0, 0)
+            warningSprite.draw()
+
+            image = pyglet.image.load(style.home.background_image[5:-2])
+            homeSprite = pyglet.sprite.Sprite(image, warningSprite.x + int(style.warning.height.replace('px','')), 0)
+            homeSprite.draw()
 
             glDisable(GL_BLEND)
                      

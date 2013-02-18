@@ -219,9 +219,6 @@ class Talkshow(Widget):
         self.gridFromPath()
         #self.newGrid()
         
-        warningImage = pyglet.image.load(style.warning.background_image[5:-2])
-        
-        
         l = self.label = Label(self, "title", x=20, y=10, size=20, text = "KommHelp Talkshow ", color = "#0030ff")        
         #l.animate("progress", 0, 1, 0, 3000)
         

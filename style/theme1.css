@@ -23,16 +23,51 @@ body {
     width: 100%;
 }
 
-#leftSide {
+#sideBar {
 	float: left;
 	height: 100%;
 	width: 10%;
 }
 
-#rightSide {
+#commandBar {
+	height: 12%;
+	width: 100%;
+}
+
+#menu {
 	float: left;
-	height: 100%;
-	width: 10%;
+}
+
+#player {
+	float: right;
+}
+
+#menu .command {
+    padding: 0% 0% 1% 0%;
+    float: left;
+}
+
+#player .command {
+    padding: 0% 0% 1% 0%;
+    float: right;
+}
+
+.command {
+    padding: 1% 3% 1% 3%;
+    text-align: center;
+}
+
+.commandImage {
+    background-position: center center;
+    border-radius: 10px 10px 10px 10px;
+	background-repeat: no-repeat;
+    height: 65px;
+    padding: 4px 4px 4px 4px;
+    width: 65px;
+}
+
+div:hover.commandImage {
+	background-color: #FF3300;
 }
 
 .nofloat {
@@ -121,140 +156,147 @@ div:hover#box8 {
     width: 30px;
 }
 
-#commandBar {
-	height: 12%;
-}
-
-#menu {
-	float: left;
-}
-
-#player {
-	float: right;
-}
-
-#menu .command {
-    padding: 0% 0% 1% 0%;
-    float: left;
-}
-
-#player .command {
-    padding: 0% 0% 1% 0%;
-    float: right;
-}
-
-
-.command {
-    padding: 1% 3% 1% 3%;
-    text-align: center;
-}
-
-.commandImage {
-    background-position: center center;
-    border-radius: 10px 10px 10px 10px;
-	background-repeat: no-repeat;
-    height: 65px;
-    padding: 4px 4px 4px 4px;
-    width: 65px;
-}
-
-div:hover.commandImage {
-	background-color: #FF3300;
-}
-
 #accept {
 	background-image: url("./style/icons/coquette/64x64/accept.png");
+	height: 64px;
+	width: 64px;
 }
 
 #back {
 	background-image: url("./style/icons/coquette/64x64/back.png");
+	height: 64px;
+	width: 64px;
 }
 
 #block {
 	background-image: url("./style/icons/coquette/64x64/block.png");
+	height: 64px;
+	width: 64px;
 }
 
 #deny {
 	background-image: url("./style/icons/coquette/64x64/delete.png");
+	height: 64px;
+	width: 64px;
 }
 
 #down {
 	background-image: url("./style/icons/coquette/64x64/download_1.png");
+	height: 64px;
+	width: 64px;
 }
 
 #first {
 	background-image: url("./style/icons/coquette/64x64/first.png");
+	height: 64px;
+	width: 64px;
 }
 
 #help {
 	background-image: url("./style/icons/coquette/64x64/help_ballon.png");
+	height: 64px;
+	width: 64px;
 }
 
 #home {
 	background-image: url("./style/icons/coquette/64x64/home.png");
+	height: 64px;
+	width: 64px;
 }
 
 #last {
 	background-image: url("./style/icons/coquette/64x64/last.png");
+	height: 64px;
+	width: 64px;
 }
 
 #next {
 	background-image: url("./style/icons/coquette/64x64/next.png");
+	height: 64px;
+	width: 64px;
 }
 
 #pause {
 	background-image: url("./style/icons/coquette/64x64/pause.png");
+	height: 64px;
+	width: 64px;
 }
 
 #play {
 	background-image: url("./style/icons/coquette/64x64/play.png");
+	height: 64px;
+	width: 64px;
 }
 
 #playNext {
 	background-image: url("./style/icons/coquette/64x64/next_2.png");
+	height: 64px;
+	width: 64px;
 }
 
 #playPrevious {
 	background-image: url("./style/icons/coquette/64x64/previous.png");
+	height: 64px;
+	width: 64px;
 }
 
 #repeat {
 	background-image: url("./style/icons/coquette/64x64/repeat.png");
+	height: 64px;
+	width: 64px;
 }
 
 #settings {
 	background-image: url("./style/icons/coquette/64x64/process.png");
+	height: 64px;
+	width: 64px;
 }
 
 #shutDown {
 	background-image: url("./style/icons/coquette/64x64/shut_down.png");
+	height: 64px;
+	width: 64px;
 }
 
 #stop {
 	background-image: url("./style/icons/coquette/64x64/stop.png");
+	height: 64px;
+	width: 64px;
 }
 
 #up {
 	background-image: url("./style/icons/coquette/64x64/up.png");
+	height: 64px;
+	width: 64px;
 }
 
 #volumeDown {
 	background-image: url("./style/icons/coquette/64x64/volume_down.png");
+	height: 64px;
+	width: 64px;
 }
 
 #volumeUp {
 	background-image: url("./style/icons/coquette/64x64/volume_up.png");
+	height: 64px;
+	width: 64px;
 }
 
 #warning {
 	background-image: url("./style/icons/coquette/64x64/warning.png");
+	height: 64px;
+	width: 64px;
 }
 
 
 #music {
 	background-image: url("./style/icons/coquette/64x64/music.png");
+	height: 64px;
+	width: 64px;
 }
 
 #video {
 	background-image: url("./style/icons/coquette/64x64/warning.png");
+	height: 64px;
+	width: 64px;
 }

@@ -17,3 +17,13 @@ class config(object):
         self.parser = parseCSS.CSSParser(self.path)
         self.style = self.parser.style
 
+
+def main():    
+    
+    print parser.style.sideBar.width
+    
+
+
+
+if __name__ == '__main__':
+    main()
