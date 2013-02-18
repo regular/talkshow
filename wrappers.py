@@ -8,7 +8,7 @@ import pyglet
 
 import talkshowConfig
 
-style = talkshowConfig.parser.style
+style = talkshowConfig.config().parser.style
 
 pyglet.options['audio'] = ('directsound', 'openal', 'silent')
 from pyglet.gl import *
