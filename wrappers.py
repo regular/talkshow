@@ -31,6 +31,8 @@ class Visible(object):
         
         self.__class__.instanceCount += 1
         
+        
+        
     def __del__(self):
         self.__class__.instanceCount -= 1
         
@@ -142,12 +144,22 @@ class Rect(ColoredVisible):
 class Screen(ColoredVisible):    
     
     def __init__(self, name, device = "", w = 800, h = 600, color="#00007f"):
-        self.window = pyglet.window.Window(caption=name, fullscreen=False, resizable=True)
-        self.window.set_size(w, h)
+        try:
+            fullscreen = bool(talkshowConfig.fullScreen)
+        except:
+            fullscreen = False
+        
+        self.window = pyglet.window.Window(caption=name, fullscreen=fullscreen, resizable=True)
+        if not fullscreen: 
+            self.window.set_size(w, h)
         ##?? self.window.push_handlers(pyglet.window.event.WindowEventLogger())
         ColoredVisible.__init__(self, None, name, 0, 0, self.w, self.h, color, opacity=1.0)
         self.__children__ = []
         self.event_handler = None
+        
+        
+        
+        
         
         @self.window.event
         def on_resize(width, height):
@@ -156,11 +168,13 @@ class Screen(ColoredVisible):
 
             glMatrixMode(gl.GL_PROJECTION)
             glLoadIdentity()
-            gluOrtho2D(0, width, 0, height);    
+            gluOrtho2D(0, width, 0, height);          
             glScalef(1, -1, 1);
             glTranslatef(0, -height, 0);
 
             glMatrixMode(gl.GL_MODELVIEW)
+            
+                        
 
         self.window.on_resize = on_resize
         

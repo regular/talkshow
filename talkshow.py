@@ -243,7 +243,10 @@ class Talkshow(Widget):
         #self.newGrid()
         
         self.ColorOld     = '#FFF000'
-        self.ScanOn       = 0
+        try:
+            self.ScanOn       = bool(talkshowConfig.scanOnDefault)
+        except:
+            self.ScanOn       = 0
         self.TimeStep = 2000
         
         #l.animate("progress", 0, 1, 0, 3000)
@@ -800,16 +803,31 @@ class Talkshow(Widget):
                 
             self.TimeOld  = TimeNow
         
-#environment.set("character_spacing", -2)                    
+#environment.set("character_spacing", -2)                
 
-screen = Screen("Talkshow", "",
-                int(style.page.width.replace('px','')),
-                int(style.page.height.replace('px','')))
+
+try:
+    screenWidth = talkshowConfig.windowWidth
+    screenHeight = talkshowConfig.windowHeight
+    print "aa"
+    if screenHeight == 0 or screenWidth == 0:        
+        print "bb"
+        screenWidth = int(style.page.width.replace('px',''))
+        screenHeight = int(style.page.height.replace('px',''))        
+except:
+    print "cc"
+    screenWidth = int(style.page.width.replace('px',''))
+    screenHeight = int(style.page.height.replace('px',''))
+    
+
+screen = Screen("Talkshow", "",screenWidth, screenHeight)
 talkshow = Talkshow(screen)
 # TODO: Add a method in Talkshow object to test if all is well configured.
 
 #tubifex.keyboard_sink = talkshow.key_sink
 screen.event_handler = talkshow
+
+#talkshow.grid.fields[0].w = 20
 
 # boilerplate
 def tick():
