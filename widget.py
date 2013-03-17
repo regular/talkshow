@@ -1,8 +1,9 @@
 from round_rect import RoundRect
 import wrappers
-from wrappers import Group, Text, splitColorChannels, mergeColorChannels, Video, style
+from wrappers import Group, Text, splitColorChannels, mergeColorChannels, Video, style, Image
 from delayed_call import *
 
+from styleSettings import *
 
 import talkshowConfig
 conf = talkshowConfig.config()
@@ -129,22 +130,6 @@ class Label(Widget):
         self.shadow.opacity = c
     progress = color = property(getOpacity, setOpacity)
 
-                   
-class DefaultSettings:
-    inner_radius = 30
-    outer_radius = 32
-    
-    shadow_offset = 7
-    shadow_blur = 15
-    
-    border_thickness = 2
-    border_color= "#000000"
-    
-    bevel_size = 6
-    highlight_amount = 0.1
-    lowlight_amount = 0.3
-    
-    color="#3030c0"
 
 class Box(Group):
     def __init__(self, parent, name, w, h, s = DefaultSettings):
@@ -225,88 +210,6 @@ class Box(Group):
         self.lowlight.extent = self.main.w-s.bevel_size, self.main.h - s.bevel_size
         
 
-class EngraveSettingsOuter:
-    inner_radius = 14
-    outer_radius = 16
-    
-    shadow_offset = 0
-    shadow_blur = 15
-    
-    border_thickness = 1
-    border_color= "#000000"
-    
-    bevel_size = 4
-    highlight_amount = -0.3
-    lowlight_amount = -0.3
-    
-    color="#6f6f6f"
-
-class EngraveSettingsInner:
-    inner_radius = 1
-    outer_radius = 2
-    
-    shadow_offset = 0
-    shadow_blur = 15
-    
-    border_thickness = 0
-    border_color= "#000000"
-    
-    bevel_size = 2
-    highlight_amount = -0.1
-    lowlight_amount = -0.1
-    
-    color="#4f4f4f"
-
-class KnobSettings:
-    inner_radius = 10
-    outer_radius = 12
-    
-    #inner_radius = 15
-    #outer_radius = 18
-    
-    shadow_offset = 5
-    shadow_blur = 4
-    
-    border_thickness = 1
-    border_color= "#000000"
-    
-    bevel_size = 2
-    highlight_amount = 0.1
-    lowlight_amount = 0.3
-    
-    color="#c0c0c0"
-
-class BarSettings:
-    inner_radius = 12
-    outer_radius = 14
-    
-    shadow_offset = 4
-    shadow_blur = 4
-    
-    border_thickness = 1
-    border_color= "#000000"
-    
-    bevel_size = 4
-    highlight_amount = 0.1
-    lowlight_amount = 0.3
-    
-    color="#c0c0c0"
-    
-class HighlightBarSettings(BarSettings):
-    inner_radius = 12
-    outer_radius = 14
-    
-    shadow_offset = 2
-    shadow_blur = 2
-    
-    border_thickness = 1
-    border_color= "#c0c0c0"
-    
-    bevel_size = 4
-    highlight_amount = 0.2
-    lowlight_amount = 0.3
-    
-    color="#c0c0f0"
 
 class Scrollbar(Widget):
     def __init__(self, parent, name, x, y, w, h, action=None):
@@ -413,23 +316,33 @@ class Videoplayer(Widget):
         self.slider.y = h - self.slider.h
         
 class Button(Widget):
-    def __init__(self, parent, name, x, y, w, h, text="button", handler = None):
+    def __init__(self, parent, name, x, y, w, h, text="button", handler = None, imagePath=None):
         Widget.__init__(self, parent, name, x, y, w, h)        
         self.handler = handler
+        
+        self.text = text        
         self.container = Widget(self, "container", 0,0, self.w, self.h)
-        self.outline = Box(self.container, "outline", w, h, s = EngraveSettingsOuter)        
+        #self.outline = Box(self.container, "outline", w, h, s = EngraveSettingsOuter)        
         b = self.bar = Box(self.container, "bar", w, h, s=BarSettings)
+        
         b.x, b.y = 1,1
         
-        label = self.label = Label(self,  "label", 0, 0, size=h*2.2/4.0, text = text)
-        #print 'Self.w: ',self.w
-        #print 'label.w: ',label.w
-        #print 'Self.h: ',self.h
-        #print 'label.h: ',label.h
-        label.x = (self.w - label.w) / 2
-        label.y = (self.h - label.h) / 2 
-        self.text = text        
-        label.progress=1
+        if imagePath:
+            
+            #self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0
+            self.image = wrappers.Image(self, name, imagePath) #self.style.home.background_image[5:-2]
+            
+        
+        else:
+        
+            label = self.label = Label(self,  "label", 0, 0, size=h*2.2/4.0, text = text)
+            #print 'Self.w: ',self.w
+            #print 'label.w: ',label.w
+            #print 'Self.h: ',self.h
+            #print 'label.h: ',label.h
+            label.x = (self.w - label.w) / 2
+            label.y = (self.h - label.h) / 2 
+            label.progress=1
        
     def onMouseButtonDown(self, button, x, y):
         self.bar.parent = None
@@ -445,21 +358,6 @@ class Button(Widget):
             self.handler()
         self.releaseMouse()
        
-class LEDSettings:
-    inner_radius = 10
-    outer_radius = 12
-    
-    shadow_offset = 6
-    shadow_blur = 8
-    
-    border_thickness = 1
-    border_color= "#000000"
-    
-    bevel_size = 3
-    highlight_amount = 0.5
-    lowlight_amount = 0.3
-    
-    color="#10a010"
 
 class LED(Group):
     def __init__(self, parent, name, x, y):

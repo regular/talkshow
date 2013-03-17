@@ -1,40 +1,46 @@
 import talkshowConfig
+import pyglet
+
+#from widget import Widget
    
 class CommandBar(object):
     
-    def __init__(self):
+    def __init__(self, screen, orientation):
 
-        self.style = talkshowConfig.parser.style
+        self.style = talkshowConfig.config().parser.style
     
         # 0 = landscape; 1 = vertical
-        self.orientation = 0
+        self.orientation = orientation
         
         # calculate bar size by orientation property
         if self.orientation == 0:
-            self.height = Screen.h * (int(self.style.commandBar.height.replace('%','')) / 100)
-            self.width = Screen.w * (int(self.style.commandBar.width.replace('%','')) / 100)
+            self.height = screen.h * self.style.commandBar.height #(int(self.style.commandBar.height.replace('%','')) / 100)
+            self.width = screen.w * self.style.commandBar.width #(int(self.style.commandBar.width.replace('%','')) / 100)
         else:
-            self.height = Screen.h * (int(self.style.sideBar.height.replace('%','')) / 100)
-            self.width = Screen.w * (int(self.style.sideBar.width.replace('%','')) / 100)
+            self.height = screen.h * self.style.sideBar.height #(int(self.style.sideBar.height.replace('%','')) / 100)
+            self.width = screen.w * self.style.sideBar.width #(int(self.style.sideBar.width.replace('%','')) / 100)
 
         self.increaseX = 0;
         self.increaseY = 0;
 
 class MenuBar(CommandBar):
 
-    def __init__(self):
+    def __init__(self, screen, orientation=0):
         
-        super(MenuBar, self).__init__()
+        super(MenuBar, self).__init__(screen, orientation=0)
         
         # TODO: CALCULATE IT
         x = 0
         y = 0
         
         if self.orientation == 0:
+            print "orientation 0"
             increaseX = int(self.style.warning.width.replace('px',''))
             increaseY = 0
         else:
-            increaseX = 0
+            
+            print "orientation 1"
+            increaseX = 0            
             increaseY = int(self.style.warning.height.replace('px',''))            
         
         # create the warning button properties
@@ -92,15 +98,15 @@ class MenuBar(CommandBar):
 
 class PlayerBar(CommandBar):
     
-    def __init__(self):
+    def __init__(self, screen, orientation=0):
         
-        super(PlayerBar, self).__init__()
+        super(PlayerBar, self).__init__(screen, orientation=0)
         
         # TODO: CALCULATE IT
         x = 0
         y = 0
         
-        if orientation == 0:
+        if self.orientation == 0:
             increaseX = int(self.style.volumeDown.width.replace('px',''))
             increaseY = 0
         else:

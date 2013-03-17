@@ -188,13 +188,13 @@ class Screen(ColoredVisible):
             for x in self.__children__:
                 x.draw()
             
-            image = pyglet.image.load(style.warning.background_image[5:-2])
-            warningSprite = pyglet.sprite.Sprite(image, 0, 0)
-            warningSprite.draw()
-
-            image = pyglet.image.load(style.home.background_image[5:-2])
-            homeSprite = pyglet.sprite.Sprite(image, warningSprite.x + int(style.warning.height.replace('px','')), 0)
-            homeSprite.draw()
+#            image = pyglet.image.load(style.warning.background_image[5:-2])
+#            warningSprite = pyglet.sprite.Sprite(image, 0, 0)
+#            warningSprite.draw()
+#
+#            image = pyglet.image.load(style.home.background_image[5:-2])
+#            homeSprite = pyglet.sprite.Sprite(image, warningSprite.x + int(style.warning.height.replace('px','')), 0)
+#            homeSprite.draw()
 
             glDisable(GL_BLEND)
                      
@@ -265,6 +265,8 @@ class Screen(ColoredVisible):
          
 class Image(ColoredVisible):
     def __init__(self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0):
+        print name
+        print path
         if path:
             image = pyglet.image.load(path.encode(sys.getfilesystemencoding()))
             self.sprite = pyglet.sprite.Sprite(image)

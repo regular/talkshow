@@ -14,8 +14,6 @@ styleDirectory = "style"
 styleFilename = 'theme1.css'
 
 
-#TODO implement the following!
-
 # Scan mode: 1 = on initially; 0 = off initially
 # DEFAULT: scanOnDefault = 0
 scanOnDefault = 0

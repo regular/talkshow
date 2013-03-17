@@ -13,16 +13,20 @@ if sys.platform == 'win32':
     import _winreg
 
 
-# Constants #todo maybe put them elsewhere in the code.
+import CommandBar
 
+#TODO: make this configurable
+ORIENTATION = 1 #TODO: BUG: this is not taken into account yet...
+
+
+# Constants #todo maybe put them elsewhere in the code.
 COLUMNS = 2
 MAX_ROW_NUMBER = 4
 
 #from pyglet.media import avbin
 
 
-#full screen mode can be set or unset in wrappers under the class "Screen" in the constructor
-
+# TODO: Add a method in Talkshow object to test if all is well configured.
 
 
 def popupErrorMessage(string):
@@ -222,7 +226,12 @@ class Talkshow(Widget):
     def __init__(self, screen):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)
                 
+                
         self.screen = screen
+        
+        self.menuBar = CommandBar.MenuBar(self.screen, ORIENTATION)
+        self.playerBar = CommandBar.PlayerBar(self.screen, ORIENTATION)
+                
         self.SetLayout('Vertical')
         
         #self.DoLayout()
@@ -248,6 +257,10 @@ class Talkshow(Widget):
         except:
             self.ScanOn       = 0
         self.TimeStep = 2000
+        
+        
+        
+        
         
         #l.animate("progress", 0, 1, 0, 3000)
         
@@ -376,6 +389,20 @@ class Talkshow(Widget):
         self.ButtonList.append (b)
         self.HandlerList.append(handler)        
         
+        
+        
+        ### add buttons from menuBar
+        
+        self.homeButton = Button(self, "", w=self.menuBar.homeWidth, h=self.menuBar.homeHeight, x=self.menuBar.homeX, y=self.menuBar.homeY, handler=self.home, text="HOMEHOME", imagePath=self.menuBar.style.home.background_image[5:-2])   
+        self.backButton = Button(self, "", w=self.menuBar.backWidth, h=self.menuBar.backHeight, x=self.menuBar.backX, y=self.menuBar.backY, handler=self.back, text="backback", imagePath=self.menuBar.style.back.background_image[5:-2])     
+        
+        
+        
+        
+        
+        
+        
+        
         name = 'backbutton'
         [x, y, w, h, handler, text, isbutton] = self.GetWidgetSize(name,Alignment)
         b = self.backButton      = Button(self, name,     w = self.backButtonWidth   , h = self.backButtonHeight,    x = self.backButtonPosX,    y = self.backButtonPosY,   handler = handler, text=text)
@@ -420,7 +447,8 @@ class Talkshow(Widget):
         
     def quit(self):
         if self.PlaybackFlag:
-            process.terminate()
+            print "some process might not have exited..."
+            #process.terminate()
         sys.exit(0)
     
     def getFieldText(self, i):
@@ -456,7 +484,7 @@ class Talkshow(Widget):
         if images:
             path = normalizePath(images[0])
             #print path
-            i = Image(None, path, path)
+            i = wrappers.Image(None, path, path)
             return i
         return None
           
@@ -809,25 +837,23 @@ class Talkshow(Widget):
 try:
     screenWidth = talkshowConfig.windowWidth
     screenHeight = talkshowConfig.windowHeight
-    print "aa"
     if screenHeight == 0 or screenWidth == 0:        
-        print "bb"
         screenWidth = int(style.page.width.replace('px',''))
         screenHeight = int(style.page.height.replace('px',''))        
 except:
-    print "cc"
     screenWidth = int(style.page.width.replace('px',''))
     screenHeight = int(style.page.height.replace('px',''))
     
 
 screen = Screen("Talkshow", "",screenWidth, screenHeight)
-talkshow = Talkshow(screen)
-# TODO: Add a method in Talkshow object to test if all is well configured.
 
-#tubifex.keyboard_sink = talkshow.key_sink
+
+
+
+talkshow = Talkshow(screen)
+
 screen.event_handler = talkshow
 
-#talkshow.grid.fields[0].w = 20
 
 # boilerplate
 def tick():
