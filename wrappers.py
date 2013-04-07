@@ -143,7 +143,7 @@ class Rect(ColoredVisible):
 
 class Screen(ColoredVisible):    
     
-    def __init__(self, name, device = "", w = 800, h = 600, color="#00007f"):
+    def __init__(self, name, device = "", w = 800, h = 600, color=style.page.background_color):
         try:
             fullscreen = bool(talkshowConfig.fullScreen)
         except:

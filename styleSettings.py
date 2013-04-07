@@ -5,7 +5,7 @@ Created on 17 Mar 2013
 @author: 
 '''
 
-
+from wrappers import style
 
                    
 class DefaultSettings:
@@ -91,7 +91,8 @@ class BarSettings:
     highlight_amount = 0.1
     lowlight_amount = 0.3
     
-    color="#c0c0c0"
+#    color="#c0c0c0"
+    color=style.page.background_color
     
 class HighlightBarSettings(BarSettings):
     pass

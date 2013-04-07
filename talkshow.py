@@ -16,7 +16,9 @@ if sys.platform == 'win32':
 import CommandBar
 
 #TODO: make this configurable
-ORIENTATION = 1 #TODO: BUG: this is not taken into account yet...
+ORIENTATION = 1
+
+#TODO: alarm button not working?
 
 
 # Constants #todo maybe put them elsewhere in the code.
@@ -62,7 +64,7 @@ class Field(Widget):
         border = self.border = Rect(self, "border", 0, 0, w, h, color="#1f1f1f")        
         border.opacity=0
         bg = self.bg = Rect(self, "bg", 2, 2, w-4, h-4)        
-        bg.color = "#7f7f7f"
+        bg.color = style.box.background_color
         l = self.label = Label(self, "label", x=20, y=20, size=h/5, text=text)        
         top_padding = style.box.padding[0]/100.0
         right_padding = style.box.padding[1]/100.0
@@ -375,9 +377,13 @@ class Talkshow(Widget):
         self.ButtonList  = []
         self.HandlerList = []
         
+        
+        #set page background:
+        self.page = Rect(self, "page", w=self.w, h= self.h, x=0, y=0, color = style.page.background_color)
+        
         name = 'bg'
         [x, y, w, h, handler, text, isbutton] = self.GetWidgetSize(name,Alignment)
-        self.bg              = Rect  (self, name,  w = self.BackGroundWidth , h=self.BackGroundHeigth, x=self.BackGroundPosX, y=self.BackGroundPosY, color="#202020")
+        self.bg              = Rect  (self, name,  w = self.BackGroundWidth , h=self.BackGroundHeigth, x=self.BackGroundPosX, y=self.BackGroundPosY, color="#7D7D7D")
         
         name = 'gridContainer'
         [x, y, w, h, handler, text, isbutton] = self.GetWidgetSize(name,Alignment)
@@ -385,8 +391,8 @@ class Talkshow(Widget):
         
         name = 'attentionbutton'
         [x, y, w, h, handler, text, isbutton] = self.GetWidgetSize(name,Alignment)
-        b = self.AttentionButton = Button(self, name,w = self.AttButtonWidth    , h = self.AttButtonHeight,     x = self.AttButtonPosX,     y = self.AttButtonPosY,    handler = handler, text=text)
-        self.ButtonList.append (b)
+#        b = self.AttentionButton = Button(self, name,w = self.AttButtonWidth    , h = self.AttButtonHeight,     x = self.AttButtonPosX,     y = self.AttButtonPosY,    handler = handler, text=text)
+#        self.ButtonList.append (b)
         self.HandlerList.append(handler)        
         
         
@@ -395,6 +401,10 @@ class Talkshow(Widget):
         
         self.homeButton = Button(self, "", w=self.menuBar.homeWidth, h=self.menuBar.homeHeight, x=self.menuBar.homeX, y=self.menuBar.homeY, handler=self.home, text="HOMEHOME", imagePath=self.menuBar.style.home.background_image[5:-2])   
         self.backButton = Button(self, "", w=self.menuBar.backWidth, h=self.menuBar.backHeight, x=self.menuBar.backX, y=self.menuBar.backY, handler=self.back, text="backback", imagePath=self.menuBar.style.back.background_image[5:-2])     
+        
+        self.menuButton = Button(self, "", w=self.menuBar.settingsWidth, h=self.menuBar.settingsHeight, x=self.menuBar.settingsX, y=self.menuBar.settingsY, handler=self.menu, text="menumenu", imagePath=self.menuBar.style.settings.background_image[5:-2])     
+        self.quitButton = Button(self, "", w=self.menuBar.shutDownWidth, h=self.menuBar.shutDownHeight, x=self.menuBar.shutDownX, y=self.menuBar.shutDownY, handler=self.quit, text="quitquit", imagePath=self.menuBar.style.shutDown.background_image[5:-2])     
+        self.warningButton = Button(self, "", w=self.menuBar.warningWidth, h=self.menuBar.warningHeight, x=self.menuBar.warningX, y=self.menuBar.warningY, handler=self.DrawAttention, text="warningwarning", imagePath=self.menuBar.style.warning.background_image[5:-2])     
         
         
         
@@ -405,26 +415,26 @@ class Talkshow(Widget):
         
         name = 'backbutton'
         [x, y, w, h, handler, text, isbutton] = self.GetWidgetSize(name,Alignment)
-        b = self.backButton      = Button(self, name,     w = self.backButtonWidth   , h = self.backButtonHeight,    x = self.backButtonPosX,    y = self.backButtonPosY,   handler = handler, text=text)
-        self.ButtonList.append (b)
+#        b = self.backButton      = Button(self, name,     w = self.backButtonWidth   , h = self.backButtonHeight,    x = self.backButtonPosX,    y = self.backButtonPosY,   handler = handler, text=text)
+#        self.ButtonList.append (b)
         self.HandlerList.append(handler)        
         
         name = 'homebutton'
         [x, y, w, h, handler, text, isbutton] = self.GetWidgetSize(name,Alignment)
-        b = self.homeButton      = Button(self, name,     w = self.homeButtonWidth   , h = self.homeButtonHeight,    x = self.homeButtonPosX,    y = self.homeButtonPosY,   handler = handler, text=text)
-        self.ButtonList.append (b)
+#        b = self.homeButton      = Button(self, name,     w = self.homeButtonWidth   , h = self.homeButtonHeight,    x = self.homeButtonPosX,    y = self.homeButtonPosY,   handler = handler, text=text)
+#        self.ButtonList.append (b)
         self.HandlerList.append(handler)        
         
         name = 'quitbutton'
         [x, y, w, h, handler, text, isbutton] = self.GetWidgetSize(name,Alignment)
-        b = self.quitButton      = Button(self, name   ,  w = self.quitButtonWidth   , h = self.quitButtonHeight,    x = self.quitButtonPosX,    y = self.quitButtonPosY,   handler = handler, text=text)        
-        self.ButtonList.append (b)
+#        b = self.quitButton      = Button(self, name   ,  w = self.quitButtonWidth   , h = self.quitButtonHeight,    x = self.quitButtonPosX,    y = self.quitButtonPosY,   handler = handler, text=text)        
+#        self.ButtonList.append (b)
         self.HandlerList.append(handler)        
         
         name = 'menubutton'
         [x, y, w, h, handler, text, isbutton] = self.GetWidgetSize(name,Alignment)
-        b = self.menuButton      = Button(self, name   ,  w = self.menuButtonWidth   , h = self.menuButtonHeight,    x = self.menuButtonPosX,    y = self.menuButtonPosY,   handler = handler, text=text)
-        self.ButtonList.append (b)
+#        b = self.menuButton      = Button(self, name   ,  w = self.menuButtonWidth   , h = self.menuButtonHeight,    x = self.menuButtonPosX,    y = self.menuButtonPosY,   handler = handler, text=text)
+#        self.ButtonList.append (b)
         self.HandlerList.append(handler)        
         
         name = 'volume'
@@ -615,7 +625,7 @@ class Talkshow(Widget):
         
         if l:
             self.path= "/".join(l[:-1])
-            self.gridFromPath(("#000000",self.path))
+            self.gridFromPath((style.page.background_color,self.path))
             self.cleanUp()
   
     def home(self):
@@ -639,7 +649,7 @@ class Talkshow(Widget):
                 
     def gridFromPath(self, color_and_path = None):
         path = ""
-        color="#000000"
+        color= style.page.background_color
         if color_and_path:
             color, path = color_and_path
         self.path = path
@@ -669,7 +679,7 @@ class Talkshow(Widget):
         if self.count:
             self.newGrid(color)
         
-    def newGrid(self, color="#000000"):
+    def newGrid(self, color=style.page.background_color):
         self.bg.color=color
         self.grid = Grid(self.gridContainer, self.count, self)
         print "instanceCount", Grid.instanceCount
@@ -706,7 +716,7 @@ class Talkshow(Widget):
         #self.backButton.h = 0
         self.MenuFlag = 1
         self.pathPrefix = './Menu/'
-        self.gridFromPath(("#000000",''))
+        self.gridFromPath((style.page.background_color,''))
         self.cleanUp()
     def PlaybackCommand(self, Command, process):
         print 'Playbakc Befehl: ',Command
@@ -838,15 +848,14 @@ try:
     screenWidth = talkshowConfig.windowWidth
     screenHeight = talkshowConfig.windowHeight
     if screenHeight == 0 or screenWidth == 0:        
-        screenWidth = int(style.page.width.replace('px',''))
-        screenHeight = int(style.page.height.replace('px',''))        
+        screenWidth = int(style.page.width)
+        screenHeight = int(style.page.height)        
 except:
-    screenWidth = int(style.page.width.replace('px',''))
-    screenHeight = int(style.page.height.replace('px',''))
+    screenWidth = int(style.page.width)
+    screenHeight = int(style.page.height)
     
 
 screen = Screen("Talkshow", "",screenWidth, screenHeight)
-
 
 
 

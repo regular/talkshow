@@ -59,13 +59,24 @@ def makeFloatsOutOfPercentages(css_value_string):
       otherwise just return the string as it was.
     '''
     if '%' in css_value_string:
-        results = css_value_string.replace('%', '').split()
+        results = css_value_string.replace('%', '').split()       
+        
         if len(results) ==1:
             return float(results[0])
         else:
-            return map(float, results)
+            return map(float, results) 
+    elif 'px' in css_value_string :        
+        results = css_value_string.replace('px', '').split()
         
-    return css_value_string
+        if len(results) ==1:
+            return int(results[0])
+        else:
+            return map(int, results)
+    else:        
+        return css_value_string
+        
+        
+        
 
 def removeHashesAndDots(css_attribute):
     return css_attribute.replace('#', '').replace('.','')
