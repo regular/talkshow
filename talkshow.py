@@ -253,6 +253,10 @@ class Talkshow(Widget):
         self.TimeOld = 0.
         #self.newGrid()
         
+        self.volume = 0.8
+        self.volumeIncrease = 0.1
+        
+        
         self.ColorOld     = '#FFF000'
         try:
             self.ScanOn       = bool(talkshowConfig.scanOnDefault)
@@ -407,6 +411,18 @@ class Talkshow(Widget):
         self.warningButton = Button(self, "", w=self.menuBar.warningWidth, h=self.menuBar.warningHeight, x=self.menuBar.warningX, y=self.menuBar.warningY, handler=self.DrawAttention, text="warningwarning", imagePath=self.menuBar.style.warning.background_image[5:-2])     
         
         
+
+        self.volumeDownButton = Button(self, "", w=self.playerBar.volumeDownWidth, h=self.playerBar.volumeDownHeight, x=self.playerBar.volumeDownX, y=self.playerBar.volumeDownY, handler=self.volumeDown, text="playplay", imagePath=self.playerBar.style.volumeDown.background_image[5:-2])     
+        self.volumeUpButton = Button(self, "", w=self.playerBar.volumeUpWidth, h=self.playerBar.volumeUpHeight, x=self.playerBar.volumeUpX, y=self.playerBar.volumeUpY, handler=self.volumeUp, text="playplay", imagePath=self.playerBar.style.volumeUp.background_image[5:-2])     
+        
+        
+        
+        #TODO: define handlers
+        self.play = None
+        self.playPrevious = None
+        
+#        self.playButton = Button(self, "", w=self.playerBar.playWidth, h=self.playerBar.playHeight, x=self.playerBar.playX, y=self.playerBar.playY, handler=self.play, text="playplay", imagePath=self.playerBar.style.play.background_image[5:-2])     
+#        self.playPreviousButton = Button(self, "", w=self.playerBar.playPreviousWidth, h=self.playerBar.playPreviousHeight, x=self.playerBar.playPreviousX, y=self.playerBar.playPreviousY, handler=self.playPrevious, text="playplay", imagePath=self.playerBar.style.playPrevious.background_image[5:-2])     
         
         
         
@@ -450,9 +466,9 @@ class Talkshow(Widget):
         x    = self.w/2
         y    = self.screenmarginvert + 5 
         
-        self.label           = Label (self, 'title', x, y, size, text = "KommHelp Talkshow", color = "#0030ff")
-        
-        self.label.x = self.w/2 - self.label.w/2
+#        self.label           = Label (self, 'title', x, y, size, text = "KommHelp Talkshow", color = "#0030ff")
+#        
+#        self.label.x = self.w/2 - self.label.w/2
           
         
     def quit(self):
@@ -619,6 +635,15 @@ class Talkshow(Widget):
         #print "Volume", v
         #tubifex.volume = v
         Sound.setGlobalVolume(v)
+        
+        
+    def volumeDown(self):
+        self.volume -= self.volumeIncrease
+        self.setVolume(self.volume)
+        
+    def volumeUp(self):
+        self.volume += self.volumeIncrease
+        self.setVolume(self.volume)
         
     def back(self):
         l = self.path.split("/")
@@ -862,6 +887,7 @@ screen = Screen("Talkshow", "",screenWidth, screenHeight)
 talkshow = Talkshow(screen)
 
 screen.event_handler = talkshow
+
 
 
 # boilerplate

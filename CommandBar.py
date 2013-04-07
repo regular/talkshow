@@ -8,17 +8,26 @@ class CommandBar(object):
     def __init__(self, screen, orientation):
 
         self.style = talkshowConfig.config().parser.style
+        self.screen = screen
+        
+        
+        # expecting a list of 4 values for the padding values. no css shorthands allowed.
+        self.imagePadding = self.style.commandImage.padding
+        self.pagePadding = map(lambda x:x/100.0, self.style.page.padding)
+        
+        self.leftPadding = self.screen.w * self.pagePadding[3] + self.imagePadding[3]
+        self.topPadding = self.screen.w * self.pagePadding[0] + self.imagePadding[0]
     
         # 0 = landscape; 1 = vertical
         self.orientation = orientation
         
         # calculate bar size by orientation property
         if self.orientation == 0:
-            self.height = screen.h * self.style.commandBar.height
-            self.width = screen.w * self.style.commandBar.width 
+            self.height = screen.h * self.style.commandBar.height / 100.0
+            self.width = screen.w * self.style.commandBar.width / 100.0
         else:
-            self.height = screen.h * self.style.sideBar.height
-            self.width = screen.w * self.style.sideBar.width
+            self.height = screen.h * self.style.sideBar.height / 100.0
+            self.width = screen.w * self.style.sideBar.width / 100.0
 
         self.increaseX = 0;
         self.increaseY = 0;
@@ -29,23 +38,21 @@ class MenuBar(CommandBar):
         
         super(MenuBar, self).__init__(screen, orientation)
         
-        # TODO: CALCULATE IT
-        x = 0
-        y = 0
         
-        padding = self.style.commandImage.padding
-        if len(padding) != 4:
-            padding = [padding[0]]*4
+        
+        x = self.leftPadding
+        y = self.topPadding
+        
         
         if self.orientation == 0:
             print "orientation 0"
-            increaseX = int(self.style.warning.width) + padding[1] + padding[3]
+            increaseX = int(self.style.warning.width) + self.imagePadding[1] + self.imagePadding[3]
             increaseY = 0
             
         else:            
             print "orientation 1"
             increaseX = 0            
-            increaseY = int(self.style.warning.height) + padding[0] + padding[2]      
+            increaseY = int(self.style.warning.height) + self.imagePadding[0] + self.imagePadding[2]      
         
         # create the warning button properties
         self.warningImage = pyglet.image.load(self.style.warning.background_image[5:-2])
@@ -104,18 +111,23 @@ class PlayerBar(CommandBar):
     
     def __init__(self, screen, orientation=0):
         
-        super(PlayerBar, self).__init__(screen, orientation=0)
+        super(PlayerBar, self).__init__(screen, orientation)
         
-        # TODO: CALCULATE IT
-        x = 0
-        y = 0
+        x = self.imagePadding[3]
+        print x
+        y = self.topPadding
         
         if self.orientation == 0:
-            increaseX = int(self.style.volumeDown.width)
+            increaseX = int(self.style.volumeDown.width) + self.imagePadding[1] + self.imagePadding[3]
             increaseY = 0
+            x = self.screen.w - 5*increaseX
         else:
+            x += self.screen.w - self.width
+            print x
+            print self.screen.w
+            print self.width
             increaseX = 0
-            increaseY = int(self.style.volumeDown.height)            
+            increaseY = int(self.style.volumeDown.height)  + self.imagePadding[0] + self.imagePadding[2]             
         
         # create the volumeDown button properties
         self.volumeDownImage = pyglet.image.load(self.style.volumeDown.background_image[5:-2])
