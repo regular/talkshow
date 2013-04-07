@@ -5,7 +5,8 @@ Created on 17 Mar 2013
 @author: 
 '''
 
-from wrappers import style
+import wrappers
+
 
                    
 class DefaultSettings:
@@ -78,7 +79,7 @@ class KnobSettings:
 
 class BarSettings:
     
-    inner_radius = 0
+    inner_radius = 10
     outer_radius = 0
     
     shadow_offset = 0
@@ -92,11 +93,11 @@ class BarSettings:
     lowlight_amount = 0.3
     
 #    color="#c0c0c0"
-    color=style.page.background_color
+    color= wrappers.style.page.background_color
     
 class HighlightBarSettings(BarSettings):
-    pass
-    
+    #color = wrappers.style.divhovercommandImage.background_color
+    color = "#FF3300"
 
 class BarSettingsOLD:
     inner_radius = 12

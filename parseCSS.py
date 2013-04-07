@@ -79,6 +79,6 @@ def makeFloatsOutOfPercentages(css_value_string):
         
 
 def removeHashesAndDots(css_attribute):
-    return css_attribute.replace('#', '').replace('.','')
+    return css_attribute.replace('#', '').replace('.','').replace(':','')
 
 

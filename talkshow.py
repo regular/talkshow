@@ -256,15 +256,21 @@ class Talkshow(Widget):
         self.volume = 0.8
         self.volumeIncrease = 0.1
         
-        
-        self.ColorOld     = '#FFF000'
+        self.ColorOld     = style.box.background_color
         try:
             self.ScanOn       = bool(talkshowConfig.scanOnDefault)
         except:
             self.ScanOn       = 0
-        self.TimeStep = 2000
+        self.TimeStep = 2000 #TODO set back to 2000
         
-        
+        self.highlightingColours = {0 : style.divhoverbox1.background_color,
+               1 : style.divhoverbox2.background_color,
+               2 : style.divhoverbox3.background_color,
+               3 : style.divhoverbox4.background_color,
+               4 : style.divhoverbox5.background_color,
+               5 : style.divhoverbox6.background_color,
+               6 : style.divhoverbox7.background_color,
+               7 : style.divhoverbox8.background_color}
         
         
         
@@ -410,6 +416,11 @@ class Talkshow(Widget):
         self.quitButton = Button(self, "", w=self.menuBar.shutDownWidth, h=self.menuBar.shutDownHeight, x=self.menuBar.shutDownX, y=self.menuBar.shutDownY, handler=self.quit, text="quitquit", imagePath=self.menuBar.style.shutDown.background_image[5:-2])     
         self.warningButton = Button(self, "", w=self.menuBar.warningWidth, h=self.menuBar.warningHeight, x=self.menuBar.warningX, y=self.menuBar.warningY, handler=self.DrawAttention, text="warningwarning", imagePath=self.menuBar.style.warning.background_image[5:-2])     
         
+        self.ButtonList.append(self.warningButton)
+        self.ButtonList.append(self.homeButton)
+        self.ButtonList.append(self.backButton)
+        self.ButtonList.append(self.menuButton)
+        self.ButtonList.append(self.quitButton)
         
 
         self.volumeDownButton = Button(self, "", w=self.playerBar.volumeDownWidth, h=self.playerBar.volumeDownHeight, x=self.playerBar.volumeDownX, y=self.playerBar.volumeDownY, handler=self.volumeDown, text="playplay", imagePath=self.playerBar.style.volumeDown.background_image[5:-2])     
@@ -822,12 +833,15 @@ class Talkshow(Widget):
         else:
             return 0
         
+        
     def DoScan(self,TimeNow):
         NumButtons    = len(self.ButtonList)
         
         if self.ScanOn:
             
             if (self.CurrentField >= len(self.grid.fields)-1 and self.CurrentButton < NumButtons-1):
+                # select & highlight a button
+                
                 LastField = self.grid.fields[-1]
                 LastField.color = self.ColorOld
                 self.CurrentField = len(self.grid.fields) + 1
@@ -843,6 +857,8 @@ class Talkshow(Widget):
                 
                 
             else:
+                # select & highlight a field (box)
+                
                 if self.CurrentButton >= NumButtons-1:
                     self.ButtonList[self.CurrentButton].bar = Box(self.ButtonList[self.CurrentButton].container, "bar", self.homeButtonWidth, self.homeButtonHeight, s=BarSettings)
                     self.CurrentField = -1
@@ -859,7 +875,7 @@ class Talkshow(Widget):
                 #Field.startHighlight()
                 LastField.color = self.ColorOld
                 self.ColorOld = Field.color
-                Field.color = '#F00000'
+                Field.color = self.highlightingColours[self.CurrentField]
                 
                 
             

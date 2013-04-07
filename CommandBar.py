@@ -113,8 +113,6 @@ class PlayerBar(CommandBar):
         
         super(PlayerBar, self).__init__(screen, orientation)
         
-        x = self.imagePadding[3]
-        print x
         y = self.topPadding
         
         if self.orientation == 0:
@@ -122,10 +120,7 @@ class PlayerBar(CommandBar):
             increaseY = 0
             x = self.screen.w - 5*increaseX
         else:
-            x += self.screen.w - self.width
-            print x
-            print self.screen.w
-            print self.width
+            x = self.imagePadding[3] + self.screen.w - self.width
             increaseX = 0
             increaseY = int(self.style.volumeDown.height)  + self.imagePadding[0] + self.imagePadding[2]             
         
