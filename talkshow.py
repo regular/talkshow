@@ -15,10 +15,13 @@ if sys.platform == 'win32':
 
 import CommandBar
 
+from talkshowLogger import logger
+debug = logger.debug
+info = logger.info
+
+
 #TODO: make this configurable
 ORIENTATION = 1
-
-#TODO: alarm button not working?
 
 
 # Constants #todo maybe put them elsewhere in the code.
@@ -225,6 +228,11 @@ class Grid(Widget):
                 
        
 class Talkshow(Widget):
+    
+    VOLUME_MAX = 1
+    
+    
+    
     def __init__(self, screen):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)
                 
@@ -242,6 +250,7 @@ class Talkshow(Widget):
         
         # TODO: FIX in order to avoid crashes
         self.pathPrefix   = "./Content/"
+        self.MenuPrefix = "Menu"
         self.path         = ""
         self.grid         = None
         self.videoplayer  = None
@@ -543,7 +552,9 @@ class Talkshow(Widget):
     def playPath(self, path):
         
         WaveSounds = glob.glob(path+"/*.wav")
-        #print "sounds", sounds
+        
+        debug(path)
+        logger.debug("sounds %s" % WaveSounds)
         if WaveSounds:
             wave = normalizePath(WaveSounds[0])
             print 'playing: ', wave
@@ -744,7 +755,9 @@ class Talkshow(Widget):
             self.newGrid()
             
     def DrawAttention(self):
-        self.playPath(self.pathPrefix + '/Alarm')
+        debug( "drawattention?")
+        self.setVolume(Talkshow.VOLUME_MAX)
+        self.playPath(self.MenuPrefix + os.sep + 'Alarm')
         
     def menu(self):
 
@@ -898,6 +911,8 @@ except:
 
 screen = Screen("Talkshow", "",screenWidth, screenHeight)
 
+
+logger.debug("initialiseing talkshow.")
 
 
 talkshow = Talkshow(screen)
