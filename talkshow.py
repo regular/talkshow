@@ -67,16 +67,14 @@ class Field(Widget):
         border = self.border = Rect(self, "border", 0, 0, w, h, color="#1f1f1f")        
         border.opacity=0
         bg = self.bg = Rect(self, "bg", 2, 2, w-4, h-4)        
-        bg.color = style.box.background_color
-        l = self.label = Label(self, "label", x=20, y=20, size=h/5, text=text)        
+        bg.color = style.box.background_color  
         top_padding = style.box.padding[0]/100.0
         right_padding = style.box.padding[1]/100.0
         bottom_padding = style.box.padding[2]/100.0
         left_padding = style.box.padding[3]/100.0
 
         labelHeight = h*0.5 - top_padding*h - bottom_padding*h
-       
-        
+               
         l = self.label = Label(self, "label", x=parent.x+parent.w*left_padding, y=parent.y+parent.h*top_padding, size=labelHeight, text=text)        
         self.PROGRESS = 0
 

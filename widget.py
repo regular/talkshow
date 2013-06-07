@@ -107,8 +107,9 @@ class Label(Widget):
         self.shadow.parent = self.fg.parent = self
 
     def doLayout(self, w, h):
-        self.shadow.w = self.fg.w = w - 2
-        self.shadow.h = self.fg.h = h - 2
+        print "doLayout? unnecessary. not doing anything."
+#        self.shadow.w = self.fg.w = w - 2
+#        self.shadow.h = self.fg.h = h - 2
         
     def _getTEXT(self):
         return self.fg.text
