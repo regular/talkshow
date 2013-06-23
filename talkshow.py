@@ -1,20 +1,26 @@
 import os
 import math
-from wrappers import *
-from widget import *
-import glob
-import subprocess
-import animated_property
-if sys.platform == 'win32':
-    import _winreg
 
-
-import CommandBar
 from talkshowLogger import logger
-
 debug = logger.debug
 info = logger.info
 warn = logger.warn
+
+try: 
+    import CommandBar
+    from wrappers import *
+    from widget import *
+    import glob
+    import subprocess
+    import animated_property
+    if sys.platform == 'win32':
+        import _winreg    
+except(Exception):
+    logger.exception("exception!")
+    raise
+    
+    
+
 
 #TODO: make this configurable
 ORIENTATION = 1
@@ -814,31 +820,6 @@ class Talkshow(Widget):
             
                 
             self.TimeOld  = TimeNow
-        
-#environment.set("character_spacing", -2)                
-
-
-try:
-    screenWidth = talkshowConfig.windowWidth
-    screenHeight = talkshowConfig.windowHeight
-    if screenHeight == 0 or screenWidth == 0:        
-        screenWidth = int(style.page.width)
-        screenHeight = int(style.page.height)        
-except:
-    screenWidth = int(style.page.width)
-    screenHeight = int(style.page.height)
-    
-
-screen = Screen("KommHelp Talkshow", "",screenWidth, screenHeight)
-
-
-logger.debug("initialising talkshow.")
-
-
-talkshow = Talkshow(screen)
-
-screen.event_handler = talkshow
-
 
 # boilerplate
 def tick():
@@ -859,6 +840,38 @@ def tick():
         talkshow.DoScan(TimeNow)
         
     return True
+              
 
-pc = PeriodicCall(tick,0)
-pyglet.app.run()
+try: 
+    
+
+    try:
+        screenWidth = talkshowConfig.windowWidth
+        screenHeight = talkshowConfig.windowHeight
+        if screenHeight == 0 or screenWidth == 0:        
+            screenWidth = int(style.page.width)
+            screenHeight = int(style.page.height)        
+    except:
+        screenWidth = int(style.page.width)
+        screenHeight = int(style.page.height)
+        
+    
+    screen = Screen("KommHelp Talkshow", "",screenWidth, screenHeight)
+    
+    
+    logger.debug("initialising talkshow.")
+    
+    
+    talkshow = Talkshow(screen)
+    
+    screen.event_handler = talkshow
+    
+    
+    
+    
+    pc = PeriodicCall(tick,0)
+    pyglet.app.run()
+
+except(Exception):
+    logger.exception("exception!")
+    raise

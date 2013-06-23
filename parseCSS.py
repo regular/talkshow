@@ -39,7 +39,7 @@ class CSSParser(object):
         if os.path.exists(filename):
             self.parseFile()
         else:
-            warn( "filename %s not found" % filename)
+            logger.error( "filename %s not found" % filename)
         
     def parseFile(self):
         parser = tinycss.make_parser()
