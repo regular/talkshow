@@ -17,7 +17,6 @@ fullScreen = 0
 
 # Window size: if fullScreen is off, you can put a height and width here
 # if set to 0, the default from the style file is used (800x600); otherwise the values here are used
-# recommended to leave these values at 0.
 # DEFAULT: windowWidth = 0
 # DEFAULT: windowHeight = 0
 windowWidth = 0

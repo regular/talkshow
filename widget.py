@@ -348,7 +348,7 @@ class Button(Widget):
        
     def onMouseButtonDown(self, button, x, y):
         self.bar.parent = None
-        b = self.bar = Box(self.container, "bar", self.w-4, self.h-4, s=HighlightBarSettings)
+        b = self.bar = Box(self.container, "bar", self.w, self.h, s=HighlightBarSettingsPressed)
         b.x, b.y = 3,3
         self.captureMouse()
          
@@ -359,6 +359,15 @@ class Button(Widget):
         if self.handler != None:
             self.handler()
         self.releaseMouse()
+        
+#    def onMouseMove(self, x, y):
+#        if x > 0 and  y > 0 and x < self.w  and y < self.h:
+#            self.bar = Box(self.container, "bar", self.w, self.h, s=HighlightBarSettings)
+#        else:
+#            self.bar = Box(self.container, "bar", self.w, self.h, s=BarSettings)
+#        
+        
+        
        
 
 class LED(Group):

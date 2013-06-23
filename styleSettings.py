@@ -98,6 +98,10 @@ class BarSettings:
 class HighlightBarSettings(BarSettings):
     #color = wrappers.style.divhovercommandImage.background_color
     color = "#FF3300"
+    
+class HighlightBarSettingsPressed(BarSettings):
+    #color = wrappers.style.divhovercommandImage.background_color
+    color = "#22FF53"
 
 class BarSettingsOLD:
     inner_radius = 12

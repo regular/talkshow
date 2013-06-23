@@ -157,10 +157,6 @@ class Screen(ColoredVisible):
         self.__children__ = []
         self.event_handler = None
         
-        
-        
-        
-        
         @self.window.event
         def on_resize(width, height):
             self.extent = width, height
@@ -173,6 +169,9 @@ class Screen(ColoredVisible):
             glTranslatef(0, -height, 0);
 
             glMatrixMode(gl.GL_MODELVIEW)
+            
+            h = self.getHandlerMethod("onResize")
+            if h: h(width, height)
             
                         
 
@@ -187,15 +186,7 @@ class Screen(ColoredVisible):
 
             for x in self.__children__:
                 x.draw()
-            
-#            image = pyglet.image.load(style.warning.background_image[5:-2])
-#            warningSprite = pyglet.sprite.Sprite(image, 0, 0)
-#            warningSprite.draw()
-#
-#            image = pyglet.image.load(style.home.background_image[5:-2])
-#            homeSprite = pyglet.sprite.Sprite(image, warningSprite.x + int(style.warning.height.replace('px','')), 0)
-#            homeSprite.draw()
-
+                
             glDisable(GL_BLEND)
                      
         buttonLUT = {

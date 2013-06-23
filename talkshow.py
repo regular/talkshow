@@ -118,6 +118,14 @@ class Field(Widget):
         if hasattr(self, "icon"): self.icon.opacity = box_progress
     progress = property(_getPROGRESS, _setPROGRESS)
 
+    def onMouseMove(self, x, y):
+        #print self.index, x, y, self.w, self.h
+        grey = Talkshow.ColorOld
+        
+        if x > 0 and  y > 0 and x < self.w  and y < self.h:
+            self.bg.color = Talkshow.highlightingColours[self.index]
+        else:
+            self.bg.color = grey
 
     def _getOPACITY(self):
         return self.bg.opacity
@@ -227,9 +235,17 @@ class Grid(Widget):
        
 class Talkshow(Widget):
     
-    VOLUME_MAX = 1
+    VOLUME_MAX = 1    
     
-    
+    ColorOld     = style.box.background_color
+    highlightingColours = {0 : style.divhoverbox1.background_color,
+               1 : style.divhoverbox2.background_color,
+               2 : style.divhoverbox3.background_color,
+               3 : style.divhoverbox4.background_color,
+               4 : style.divhoverbox5.background_color,
+               5 : style.divhoverbox6.background_color,
+               6 : style.divhoverbox7.background_color,
+               7 : style.divhoverbox8.background_color}
     
     def __init__(self, screen):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)
@@ -261,27 +277,31 @@ class Talkshow(Widget):
         self.volume = 0.8
         self.volumeIncrease = 0.1
         
-        self.ColorOld     = style.box.background_color
         try:
             self.ScanOn       = bool(talkshowConfig.scanOnDefault)
         except:
             self.ScanOn       = 0
         self.TimeStep = 2000 #TODO set back to 2000
         
-        self.highlightingColours = {0 : style.divhoverbox1.background_color,
-               1 : style.divhoverbox2.background_color,
-               2 : style.divhoverbox3.background_color,
-               3 : style.divhoverbox4.background_color,
-               4 : style.divhoverbox5.background_color,
-               5 : style.divhoverbox6.background_color,
-               6 : style.divhoverbox7.background_color,
-               7 : style.divhoverbox8.background_color}
+        
         
         # create layout
         self.SetLayout('Vertical')
         
         # create grid
         self.gridFromPath ()
+        
+    def onResize(self, width, height):
+        
+        if width != self.w and height != self.h:            
+            self.h = height
+            self.w = width
+            self.menuBar = CommandBar.MenuBar(self.screen, ORIENTATION)
+            self.playerBar = CommandBar.PlayerBar(self.screen, ORIENTATION)
+        
+            # create layout & grid
+            self.SetLayout('Vertical')
+            self.gridFromPath ()
         
                 
     def GetWidgetSize(self,name,Alignment):
