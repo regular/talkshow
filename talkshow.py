@@ -416,10 +416,13 @@ class Talkshow(Widget):
 #        self.label.x = self.w/2 - self.label.w/2
           
         
-    def quit(self):
+    def quit(self):        
         if self.PlaybackFlag:
-            warn( "some process might not have exited...")
-            #process.terminate()
+            try:
+                self.PlaybakcProc.terminate()
+            except(Exception):
+                logger.exception("Could not kill media player process...")
+                warn( "some process might not have exited! Use your task manager to kill the wmplayer.exe process if needed. ")
         sys.exit(0)
     
     def getFieldText(self, i):
