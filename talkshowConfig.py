@@ -17,9 +17,9 @@ fullScreen = 0
 
 # noTextIfImageAvailable: set to 1 in order not to display any text when there
 # is an image (.png) in the folder.
-#DEFAULT: noTextIfImageAvailable = 0
+# set to 0 if you want to display text AND image
+#DEFAULT: noTextIfImageAvailable = 1
 noTextIfImageAvailable = 1
-
 
 # Window size: if fullScreen is off, you can put a height and width here
 # if set to 0, the default from the style file is used (800x600); otherwise the values here are used

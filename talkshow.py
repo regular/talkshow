@@ -200,7 +200,8 @@ class Grid(Widget):
             self.delegate.onFieldClicked(field)
 
     def enterFIeld(self, field):
-        info("enterFIeld" + str(field))
+        info("enterFIeld" + str(field) +" "+ str(field.color))
+        field.color = style.page.background_color
         if field != None:
             for f in self:
                 if f != field:
@@ -436,9 +437,8 @@ class Talkshow(Widget):
                 debug("subfields" + str(subfields))
                 if len(subfields)>0:
                     #self.path = self.pathForField(f.index)     
-                    
                     self.grid.enterFIeld(f)
-                    self.dc = DelayedCall(self.gridFromPath, 500, (f.color, self.pathForField(f.index)))
+                    self.dc = DelayedCall(self.gridFromPath, 500, (style.page.background_color, self.pathForField(f.index)))
             self.playPath(self.pathPrefix + self.pathForField(f.index))
             #self.playPath_AudioRecorder(self.pathPrefix + self.pathForField(f.index))
     
@@ -646,6 +646,7 @@ class Talkshow(Widget):
             self.newGrid(color)
         
     def newGrid(self, color=style.page.background_color):
+                
         self.bg.color=color
         self.grid = Grid(self.gridContainer, self.count, self)
         debug("instanceCount" + str( Grid.instanceCount))
