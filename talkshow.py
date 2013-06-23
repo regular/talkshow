@@ -41,7 +41,7 @@ def WindowsPath(path):
     return os.getcwd() + path[1:]
 
 def ExpandPath(path):
-    path = os.path.expandvars(path[:-4].replace('%','$')).replace('$','')
+    path = os.path.expandvars(path[:-4])
     return path
     
 def clamp(v, low=0.0, high=1.0):
