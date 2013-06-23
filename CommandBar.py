@@ -87,6 +87,17 @@ class MenuBar(CommandBar):
         x = x + increaseX
         y = y + increaseY
     
+        # create the shutDown button properties        
+        self.shutDownImage = pyglet.image.load(self.style.shutDown.background_image[5:-2])
+        self.shutDownHeight = int(self.style.shutDown.height)
+        self.shutDownWidth = int(self.style.shutDown.width)
+        self.shutDownX = x
+        self.shutDownY = y
+        self.shutDownSprite = pyglet.sprite.Sprite(self.shutDownImage, self.shutDownX, self.shutDownY)
+
+        x = x + increaseX
+        y = y + increaseY    
+        
         # create the settings button properties
         self.settingsImage = pyglet.image.load(self.style.settings.background_image[5:-2])
         self.settingsHeight = int(self.style.settings.height)
@@ -94,17 +105,6 @@ class MenuBar(CommandBar):
         self.settingsX = x
         self.settingsY = y
         self.settingsSprite = pyglet.sprite.Sprite(self.settingsImage, self.settingsX, self.settingsY)
-
-        x = x + increaseX
-        y = y + increaseY
-    
-        # create the shutDown button properties
-        self.shutDownImage = pyglet.image.load(self.style.shutDown.background_image[5:-2])
-        self.shutDownHeight = int(self.style.shutDown.height)
-        self.shutDownWidth = int(self.style.shutDown.width)
-        self.shutDownX = x
-        self.shutDownY = y
-        self.shutDownSprite = pyglet.sprite.Sprite(self.shutDownImage, self.shutDownX, self.shutDownY)
 
 
 class PlayerBar(CommandBar):
@@ -145,6 +145,16 @@ class PlayerBar(CommandBar):
 
         x = x + increaseX
         y = y + increaseY
+        
+        self.volumeHeight = int(self.style.volumeUp.height)
+        self.volumeWidth = int(self.style.volumeUp.width)
+        self.volumeX = x
+        self.volumeY = y
+        self.volumeSize = 50
+        
+        x = x + increaseX
+        y = y + increaseY        
+        
     
         # create the playPrevious button properties
         self.playPreviousImage = pyglet.image.load(self.style.playPrevious.background_image[5:-2])

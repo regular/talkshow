@@ -240,7 +240,6 @@ class Talkshow(Widget):
         self.menuBar = CommandBar.MenuBar(self.screen, ORIENTATION)
         self.playerBar = CommandBar.PlayerBar(self.screen, ORIENTATION)
                 
-        self.SetLayout('Vertical')
         
         #self.DoLayout()
         
@@ -254,7 +253,6 @@ class Talkshow(Widget):
         self.videoplayer  = None
         self.MenuFlag     = 0
         self.PlaybackFlag = 0
-        self.gridFromPath ()
         self.SetPlayer    ('WMP')
         
         self.TimeOld = 0.
@@ -279,10 +277,13 @@ class Talkshow(Widget):
                6 : style.divhoverbox7.background_color,
                7 : style.divhoverbox8.background_color}
         
+        # create layout
+        self.SetLayout('Vertical')
         
+        # create grid
+        self.gridFromPath ()
         
-        #l.animate("progress", 0, 1, 0, 3000)
-        
+                
     def GetWidgetSize(self,name,Alignment):
         if Alignment == 'Vertical':            
             self.Headwidth          = 0
@@ -419,20 +420,24 @@ class Talkshow(Widget):
         self.homeButton = Button(self, "", w=self.menuBar.homeWidth, h=self.menuBar.homeHeight, x=self.menuBar.homeX, y=self.menuBar.homeY, handler=self.home, text="HOMEHOME", imagePath=self.menuBar.style.home.background_image[5:-2])   
         self.backButton = Button(self, "", w=self.menuBar.backWidth, h=self.menuBar.backHeight, x=self.menuBar.backX, y=self.menuBar.backY, handler=self.back, text="backback", imagePath=self.menuBar.style.back.background_image[5:-2])     
         
-        self.menuButton = Button(self, "", w=self.menuBar.settingsWidth, h=self.menuBar.settingsHeight, x=self.menuBar.settingsX, y=self.menuBar.settingsY, handler=self.menu, text="menumenu", imagePath=self.menuBar.style.settings.background_image[5:-2])     
+        #self.menuButton = Button(self, "", w=self.menuBar.settingsWidth, h=self.menuBar.settingsHeight, x=self.menuBar.settingsX, y=self.menuBar.settingsY, handler=self.menu, text="menumenu", imagePath=self.menuBar.style.settings.background_image[5:-2])     
         self.quitButton = Button(self, "", w=self.menuBar.shutDownWidth, h=self.menuBar.shutDownHeight, x=self.menuBar.shutDownX, y=self.menuBar.shutDownY, handler=self.quit, text="quitquit", imagePath=self.menuBar.style.shutDown.background_image[5:-2])     
         self.warningButton = Button(self, "", w=self.menuBar.warningWidth, h=self.menuBar.warningHeight, x=self.menuBar.warningX, y=self.menuBar.warningY, handler=self.DrawAttention, text="warningwarning", imagePath=self.menuBar.style.warning.background_image[5:-2])     
         
         self.ButtonList.append(self.warningButton)
         self.ButtonList.append(self.homeButton)
         self.ButtonList.append(self.backButton)
-        self.ButtonList.append(self.menuButton)
+        #self.ButtonList.append(self.menuButton)
         self.ButtonList.append(self.quitButton)
         
 
         self.volumeDownButton = Button(self, "", w=self.playerBar.volumeDownWidth, h=self.playerBar.volumeDownHeight, x=self.playerBar.volumeDownX, y=self.playerBar.volumeDownY, handler=self.volumeDown, text="playplay", imagePath=self.playerBar.style.volumeDown.background_image[5:-2])     
         self.volumeUpButton = Button(self, "", w=self.playerBar.volumeUpWidth, h=self.playerBar.volumeUpHeight, x=self.playerBar.volumeUpX, y=self.playerBar.volumeUpY, handler=self.volumeUp, text="playplay", imagePath=self.playerBar.style.volumeUp.background_image[5:-2])     
         
+        
+        self.volumeLabel = Label(self, "name", self.playerBar.volumeX, self.playerBar.volumeY, self.playerBar.volumeSize, text=self.setVolumeText(), font_size=conf.FONT_SIZE_VOL)     
+        
+
         
         
         #TODO: define handlers
@@ -652,19 +657,26 @@ class Talkshow(Widget):
             print 'Sorry. Currently, media other than *.wav files can only be played back on Windows 32 systems.'
                 
     def setVolume(self, v):
-        #print "Volume", v
         #tubifex.volume = v
+        self.volume = v
         Sound.setGlobalVolume(v)
+        self.setVolumeText()        
         
+        
+    def setVolumeText(self):
+        volumeText = "   " + str(int(10*self.volume))        
+        try: self.volumeLabel.text = volumeText
+        except: pass
+        return volumeText
         
     def volumeDown(self):
-        self.volume -= self.volumeIncrease
-        self.setVolume(self.volume)
+        if self.volume >= 0.1:
+            self.setVolume(self.volume - self.volumeIncrease)
         
     def volumeUp(self):
-        self.volume += self.volumeIncrease
-        self.setVolume(self.volume)
-        
+        if self.volume < self.VOLUME_MAX:
+            self.setVolume(self.volume + self.volumeIncrease)
+                 
     def back(self):
         l = self.path.split("/")
         

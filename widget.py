@@ -8,7 +8,6 @@ from styleSettings import *
 import talkshowConfig
 conf = talkshowConfig.config()
 
-FONT_SIZE = 32
 
 style = conf.style
 mydict = conf.parser.dict
@@ -76,7 +75,7 @@ class Widget(Group):
 class Label(Widget):
     #FONT = "Helvetica"
     #WEIGHT = -100
-    def __init__(self, parent, name, x, y, size, text=None, font=None, color="#ffffff"):
+    def __init__(self, parent, name, x, y, size, text=None, font=None, color="#ffffff", font_size=None):
         #self.shadow = Text(None, "shadow", 2, 2, h=size*0.75, text=text if text else name, color="#000000", opacity = 0.4, font=font if font else self.FONT)
         #self.fg = Text    (None, "text",   0, 0, h=size*0.75, text=text if text else name, color=color, opacity=0.9,font=font if font else self.FONT) 
         
@@ -94,9 +93,11 @@ class Label(Widget):
         except: 
             print "font color failed."
         
-        self.font_size = FONT_SIZE
-        try: self.font_size = int(style.boxLabel.font_size.replace('px',''))
-        except: pass
+        if font_size:
+            self.font_size = font_size
+        else:            
+            try: self.font_size = int(style.boxLabel.font_size.replace('px',''))
+            except: self.font_size = conf.FONT_SIZE_DEFAULT
         
         #self.shadow = Text(None, "shadow", 2, 2, h=size, text=text if text else name, color=self.col, opacity = 0.4, font=font if font else self.FONT) 
         self.fg = Text(None, "text", 0,0, h=self.font_size, text=text if text else name, color=self.col, opacity=1,font=font if font else self.FONT) 

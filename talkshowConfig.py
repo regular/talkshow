@@ -7,13 +7,6 @@ You may also change directory and file name for the style sheet used.
 '''
 
 
-# The directory containing menu images and the .CSS style file:
-styleDirectory = "style"
-
-# The filename of the .CSS style file
-styleFilename = 'theme1.css'
-
-
 # Scan mode: 1 = on initially; 0 = off initially
 # DEFAULT: scanOnDefault = 0
 scanOnDefault = 0
@@ -23,21 +16,41 @@ scanOnDefault = 0
 fullScreen = 0
 
 # Window size: if fullScreen is off, you can put a height and width here
-# if set to 0, the default from the style file is used; otherwise the values here are used
+# if set to 0, the default from the style file is used (800x600); otherwise the values here are used
 # recommended to leave these values at 0.
 # DEFAULT: windowWidth = 0
 # DEFAULT: windowHeight = 0
 windowWidth = 0
 windowHeight = 0
 
+# The directory containing menu images and the .CSS style file:
+#DEFAULT: styleDirectory = "style"
+styleDirectory = 'style'
+
+# The filename of the .CSS style file
+#DEFAULT: styleFilename = 'theme1.css'
+styleFilename = 'theme1.css'
 
 
 
+
+
+
+
+
+
+# do not change the code below!
 
 import os
 import parseCSS
 
-class config(object):
+class config(object):    
+    
+    ## other default sizes that *could* be changed     
+    ## but these sizes are overridden by those in the style.css anyway.
+    FONT_SIZE_DEFAULT = 32
+    FONT_SIZE_VOL = 16
+    
     def __init__(self):
         self.path = os.path.join(styleDirectory, styleFilename)
         self.parser = parseCSS.CSSParser(self.path)

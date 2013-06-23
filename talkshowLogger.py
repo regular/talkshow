@@ -15,7 +15,7 @@ logger.setLevel(logging.DEBUG)
 fileDebugLogger = logging.FileHandler('debug.log')
 fileDebugLogger.setLevel(logging.DEBUG)
 
-# create file handler which logs even debug messages
+# create file handler which logs warn messages
 fileWarnLogger = logging.FileHandler('warn.log')
 fileWarnLogger.setLevel(logging.WARN)
 
@@ -24,7 +24,7 @@ consoleLogger = logging.StreamHandler()
 consoleLogger.setLevel(logging.DEBUG)
 
 # create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s')
 fileDebugLogger.setFormatter(formatter)
 consoleLogger.setFormatter(formatter)
 fileWarnLogger.setFormatter(formatter)
