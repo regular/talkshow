@@ -1,7 +1,11 @@
 import talkshowConfig
 import pyglet
 
-#from widget import Widget
+from talkshowLogger import logger
+
+debug = logger.debug
+info = logger.info
+warn = logger.warn
    
 class CommandBar(object):
     
@@ -45,12 +49,12 @@ class MenuBar(CommandBar):
         
         
         if self.orientation == 0:
-            print "orientation 0"
+            debug("orientation 0")
             increaseX = int(self.style.warning.width) + self.imagePadding[1] + self.imagePadding[3]
             increaseY = 0
             
         else:            
-            print "orientation 1"
+            debug("orientation 1")
             increaseX = 0            
             increaseY = int(self.style.warning.height) + self.imagePadding[0] + self.imagePadding[2]      
         

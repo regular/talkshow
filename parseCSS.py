@@ -7,6 +7,11 @@ Created on 9 Feb 2013
 import tinycss
 import os
 
+from talkshowLogger import logger
+
+debug = logger.debug
+info = logger.info
+warn = logger.warn
 
 class Struct(object):
     '''Struct to convert a python dict (which you access by myDict["key1"]) into a class, 
@@ -34,7 +39,7 @@ class CSSParser(object):
         if os.path.exists(filename):
             self.parseFile()
         else:
-            print "filename %s not found" % filename
+            warn( "filename %s not found" % filename)
         
     def parseFile(self):
         parser = tinycss.make_parser()
@@ -44,12 +49,12 @@ class CSSParser(object):
         try:
             self.dict = {removeHashesAndDots(rule.selector.as_css()):{declaration.name:makeFloatsOutOfPercentages(declaration.value.as_css()) for declaration in rule.declarations  } for rule in stylesheet.rules}
         except Exception, e:
-            print "problem with submethod, only generating basicDict"
+            warn( "problem with submethod, only generating basicDict")
             raise e
         try:
             self.style = Struct(**{removeHashesAndDots(rule.selector.as_css()):Struct(**{declaration.name.replace('-','_'):makeFloatsOutOfPercentages(declaration.value.as_css()) for declaration in rule.declarations  }) for rule in stylesheet.rules})
         except Exception, e:
-            print "problem with submethod, only generating basicDict and dict"
+            warn( "problem with submethod, only generating basicDict and dict")
             raise e
             
             

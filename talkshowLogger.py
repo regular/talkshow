@@ -24,7 +24,7 @@ consoleLogger = logging.StreamHandler()
 consoleLogger.setLevel(logging.DEBUG)
 
 # create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(funcName)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(module)s:%(lineno)s %(funcName)s - %(message)s')
 fileDebugLogger.setFormatter(formatter)
 consoleLogger.setFormatter(formatter)
 fileWarnLogger.setFormatter(formatter)

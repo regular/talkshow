@@ -8,13 +8,8 @@ from styleSettings import *
 import talkshowConfig
 conf = talkshowConfig.config()
 
-
 style = conf.style
 mydict = conf.parser.dict
-print mydict
-
-print style.boxLabel
-print mydict['boxLabel']['color']
    
 class Widget(Group):
     def __init__(self, p, name, x = 0, y = 0, w = 10, h = 10, ox = 0, oy = 0):
@@ -81,17 +76,13 @@ class Label(Widget):
         
         #Widget.__init__(self, parent, name, x = x, y = y, w = self.shadow.w + 2, h = self.shadow.h + 2)
         self.FONT = "Helvetica"
-        try:
-            self.FONT = style.boxLabel.font_family.split(',')[0]
-            print "font set success"
-        except:
-            print "font not set"
+        try:  self.FONT = style.boxLabel.font_family.split(',')[0]
+        except: pass
+        
         self.WEIGHT = -100
-        try:
-            self.col = style.boxLabel.color
-            print "font color set success"
-        except: 
-            print "font color failed."
+        
+        try:  self.col = style.boxLabel.color
+        except: pass
         
         if font_size:
             self.font_size = font_size
@@ -108,7 +99,7 @@ class Label(Widget):
         self.shadow.parent = self.fg.parent = self
 
     def doLayout(self, w, h):
-        print "doLayout? unnecessary. not doing anything."
+        debug("doLayout? unnecessary. not doing anything.")
 #        self.shadow.w = self.fg.w = w - 2
 #        self.shadow.h = self.fg.h = h - 2
         
@@ -338,10 +329,6 @@ class Button(Widget):
         else:
         
             label = self.label = Label(self,  "label", 0, 0, size=h*2.2/4.0, text = text)
-            #print 'Self.w: ',self.w
-            #print 'label.w: ',label.w
-            #print 'Self.h: ',self.h
-            #print 'label.h: ',label.h
             label.x = (self.w - label.w) / 2
             label.y = (self.h - label.h) / 2 
             label.progress=1

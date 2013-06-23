@@ -1,6 +1,13 @@
 import pyglet
 import weakref
 
+
+from talkshowLogger import logger
+
+debug = logger.debug
+info = logger.info
+warn = logger.warn
+
 class NoCookie: pass
 
 class DelayedCall:
@@ -63,7 +70,7 @@ class DelayedCall:
     
     def cancel(self):
         if self.scheduled:
-            print "cancel!"
+            debug("cancel!")
             pyglet.clock.unschedule(self.identifier)
         self.scheduled = False
         self.func = None

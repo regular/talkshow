@@ -46,7 +46,6 @@ ORIENTATION = 1
 # TODO: Add a method in Talkshow object to test if all is well configured.
 
 
-# replace print with proper logging calls
 # strange paths replace by os.dirsep
 # refactor code into more classes/files 
 # documentation on structure

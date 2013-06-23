@@ -1,14 +1,14 @@
 import weakref
-import sys
 from sys import getrefcount
 import string
-import pyglet
-
-
-
 import talkshowConfig
 
 style = talkshowConfig.config().parser.style
+
+from talkshowLogger import logger
+debug = logger.debug
+info = logger.info
+warn = logger.warn
 
 #?? pyglet.options['audio'] = ('directsound', 'openal', 'silent')
 from pyglet.gl import *
@@ -256,8 +256,7 @@ class Screen(ColoredVisible):
          
 class Image(ColoredVisible):
     def __init__(self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0):
-        print name
-        print path
+        debug(path)
         if path:
             image = pyglet.image.load(path.encode(sys.getfilesystemencoding()))
             self.sprite = pyglet.sprite.Sprite(image)
@@ -432,7 +431,6 @@ class Group(ClippingContainer):
     def _setW(self, value):
         if self._W == value: return
         self._W = value
-        #print value
         self.doLayout(self._W, self._H)
     w = property(_getW, _setW)
 
