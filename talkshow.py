@@ -287,7 +287,7 @@ class Talkshow(Widget):
         
     def onResize(self, width, height):
         
-        if width != self.w and height != self.h:            
+        if width != self.w or height != self.h:            
             self.h = height
             self.w = width
             self.menuBar = CommandBar.MenuBar(self.screen, ORIENTATION)
