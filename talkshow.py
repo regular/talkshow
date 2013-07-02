@@ -802,7 +802,7 @@ class Talkshow(Widget):
                 # select & highlight a field (box)
                 
                 if self.CurrentButton >= NumButtons-1:
-                    self.ButtonList[self.CurrentButton].bar = Box(self.ButtonList[self.CurrentButton].container, "bar", self.self.homeButton.w, self.self.homeButton.h, s=BarSettings)
+                    self.ButtonList[self.CurrentButton].bar = Box(self.ButtonList[self.CurrentButton].container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
                     self.CurrentField = -1
                     self.CurrentButton = -1
                     
