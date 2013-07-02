@@ -414,6 +414,9 @@ class Talkshow(Widget):
 #        y    = self.screenmarginvert + 5         
 #        self.label           = Label (self, 'title', x, y, size, text = "KommHelp Talkshow", color = "#0030ff")#        
 #        self.label.x = self.w/2 - self.label.w/2
+        
+        
+        self.HandlerList = [button.handler for button in self.ButtonList]
           
         
     def quit(self):        
@@ -644,9 +647,11 @@ class Talkshow(Widget):
                 self.pathPrefix = './Menu/'
                 self.path = 'Scan/Change settings'
         if self.PlaybackFlag:
+            
             self.PlaybackCommand(path[path.rfind('/')+1:],self.PlaybakcProc)
             
             
+        debug("prefix=[{}] path =[{}]".format(self.pathPrefix, self.path))
         debug(self.pathPrefix + path)
         
         self.items =  self.subdirs(self.pathPrefix, self.path)
