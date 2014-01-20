@@ -13,7 +13,7 @@ try:
         import _winreg
 
     from talkshowConfig import config as configClass
-    #from vlcPlayer import vlcPlayer
+    from vlcPlayer import vlcPlayer
 
 except Exception as e:
     logger.exception("exception! Details: {}".format(e))
@@ -279,7 +279,6 @@ class Talkshow(Widget):
         self.videoplayer  = None
         self.MenuFlag     = 0
         self.PlaybackFlag = 0
-        self.SetPlayer    ('WMP')
         
         self.TimeOld = 0.
         #self.newGrid()
@@ -468,7 +467,7 @@ class Talkshow(Widget):
              
     def getFieldIcon(self, i):
         path = self.pathForField(i)
-        return self.iconForPath(self.pathPrefix + path)
+        return self.iconForPath(os.path.join(self.pathPrefix, path))
          
     def onFieldClicked(self, f):        
         if f != None:
@@ -481,7 +480,7 @@ class Talkshow(Widget):
                     #self.path = self.pathForField(f.index)     
                     self.grid.enterFIeld(f)
                     self.dc = DelayedCall(self.gridFromPath, 500, (style.page.background_color, self.pathForField(f.index)))
-            self.playPath(self.pathPrefix + self.pathForField(f.index))
+            self.playPath(os.path.join(self.pathPrefix, self.pathForField(f.index)))
             #self.playPath_AudioRecorder(self.pathPrefix + self.pathForField(f.index))
     
     def iconForPath(self, path):
@@ -507,107 +506,21 @@ class Talkshow(Widget):
             s.speed=1
             
     def playPath(self, path):
-        
-        WaveSounds = glob.glob(path+"/*.wav")
-        
+
+        mediaPatterns = ["*.wav", "*.avi", "*.wmv", "*.mpg", "*.mp3", "*.wma", "*.asf", "*.midi", "*.aiff", "*.au", "*.m4a"]
+        mediaPatterns_uppercase = [pattern.upper() for pattern in mediaPatterns]
+        mediaPatterns.extend(mediaPatterns_uppercase)
+        mediaFiles = []
+        for pattern in mediaPatterns:
+            mediaFiles += glob.glob1(path, pattern)
+
         debug(path)
-        logger.debug("sounds %s" % WaveSounds)
-        if WaveSounds:
-            wave = normalizePath(WaveSounds[0])
-            debug('playing: %s' % wave)
-            s = self.sound  = Sound(0, wave)
-            s.speed=1
-        else:
-            Media = glob.glob(path+"/*.avi") + glob.glob(path+"/*.wmv") + glob.glob(path+"/*.mpg") + glob.glob(path+"/*.mp3") + glob.glob(path+"/*.wma") + glob.glob(path+"/*.asf") + glob.glob(path+"/*.midi") + glob.glob(path+"/*.aiff") + glob.glob(path+"/*.au")
-        
-            if Media:
-                MediaString = ''
-                for filename in Media:
-                    WinName = WindowsPath(filename)
-                    MediaString = MediaString + ' "' + WinName + '"'
-                self.play_MediaPlayer(MediaString)
-                return
-            
-            
-    #def play_AudioRecorder(self, mp3):
-    #    AudioRecorderExe = 'c:\WINDOWS\system32\sndrec32.exe '
-    #    #Arguments        = '/embedding /play /close '
-    #    Arguments        = '/play /close '
-    #    os.system(AudioRecorderExe + Arguments + '"' + mp3 + '"')
-    
-    def Record_AudioRecorder(self, name):
-        AudioRecorderExe = 'c:\WINDOWS\system32\sndrec32.exe '
-        #Arguments        = '/embedding /play /close '
-        Arguments        = '/record /close '
-        os.system(AudioRecorderExe + Arguments + '"' + name + '"')
-            
-    def play_MediaPlayer(self, media):
-        
-        Arguments      = '--volume=1 '
+        debug("audio files under {}: {}. Playing the first one if there is one...".format(path, mediaFiles))
 
-        #screen.window.set_fullscreen(0)
-        debug( 'Play command: ' + self.MediaPlayerExe + Arguments + media)
-        
-        si = subprocess.STARTUPINFO()
-        si.dwFlags     = subprocess.STARTF_USESHOWWINDOW
-        si.wShowWindow = subprocess.SW_HIDE
-        
-        self.PlaybakcProc = subprocess.Popen(self.MediaPlayerExe + Arguments + media,startupinfo = si)
+        if mediaFiles:
+            self.player.play(os.path.join(path, mediaFiles[0]))
 
-        self.PlaybackFlag = 1
-        self.home()
-        #screen = Screen('', "", 40, 80, "#00007f")#screen.on_resize(50,70)
-        #screen.w = 200
-        #screen.h = 200
-        
-        #screen.x = 100
-        #screen.y = 10
-        #screen.window.activate()
-        
-        #Running = 1
-        #while Running:
-        #    Running = self.process.poll()
-        
-        #self.process.wait()
-        #screen.window.set_fullscreen(1)
-    
-    def SetPlayer(self,Player):
-        if sys.platform == 'win32':
-            if Player == 'VLC':
-                KeyName = 'SOFTWARE\\VideoLAN\\VLC'
-                AppName = ''
-                debug( "VLC")
-                
-            elif Player == 'WMP':
-                KeyName = 'Software\\Microsoft\\MediaPlayer\\Setup\\CreatedLinks'
-                AppName = 'AppName'
-                debug( "WMP")
-                
-            else: 
-                warn( 'Media player not defined.')
-            try:
-                
-                RegKey     = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,KeyName)
-                Executable = ExpandPath(_winreg.QueryValueEx(RegKey,AppName)[0])
-            except:
-                try:
-                    RegKey     = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,KeyName)
-                    Executable = ExpandPath(_winreg.QueryValueEx(RegKey,AppName)[0])
-                
-                except:
-                    warn( 'Sorry. Neither Windows Media Player nor VLC found in registry. Media playback disabelled.')
-                    return
-                
-#            if Player == 'VLC':
-#                Executable = Executable.replace('vlc','cvlc')
-#                
-            self.MediaPlayerExe = Executable + ' '
-            
-                
-            debug( self.MediaPlayerExe)
-            
-        else:
-            warn( 'Sorry. Currently, media other than *.wav files can only be played back on Windows 32 systems.')
+
                 
     def setVolume(self, v):
         #tubifex.volume = v
@@ -845,7 +758,7 @@ class Talkshow(Widget):
             LastField = self.grid.fields[self.CurrentField-1]
             a = self.grid
             debug(str(self.CurrentField+1) + str(Field.text))
-            self.playName(unicode(self.pathPrefix + self.pathForField(Field.index)))
+            self.playName(os.path.join(self.pathPrefix, self.pathForField(Field.index)))
 
             #Field.startHighlight()
             LastField.color = self.ColorOld
@@ -856,8 +769,6 @@ class Talkshow(Widget):
 
     # boilerplate
     def tick(self):
-        if not Talkshow.ScanOn:
-            return
 
         TimeNow = time.time()*1000
 
@@ -870,7 +781,7 @@ class Talkshow(Widget):
         animated_property.T = TimeNow
         animated_property.AnimatedProperty.tick()
 
-        if TimeNow - TimeOld > self.TimeStep:
+        if Talkshow.ScanOn and (TimeNow - TimeOld > self.TimeStep):
             self.DoScan(TimeNow)
         return True
 
@@ -900,8 +811,7 @@ def main():
 
     # initialise config and vlcPlayer
     config = configClass()
-    #player = vlcPlayer()
-    player =""
+    player = vlcPlayer()
 
     # talkshow object and handler
     talkshow = Talkshow(config, screen, player)
