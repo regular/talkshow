@@ -484,7 +484,7 @@ class Talkshow(Widget):
             #self.playPath_AudioRecorder(self.pathPrefix + self.pathForField(f.index))
     
     def iconForPath(self, path):
-        images = glob.glob(path+"/*.png")
+        images = glob.globl(path, "*.png")
         if images:
             path = normalizePath(images[0])
             i = wrappers.Image(None, path, path)
@@ -519,6 +519,8 @@ class Talkshow(Widget):
 
         if mediaFiles:
             self.player.play(os.path.join(path, mediaFiles[0]))
+        else:
+            info("no media file found under {}".format(path))
 
 
                 
@@ -565,9 +567,10 @@ class Talkshow(Widget):
             items = ['Quit']
         else:
             items = os.listdir(os.path.join(prefix, path))
+            items = [unicode(i) for i in items]
             items = filter(lambda x: os.path.isdir(os.path.join(prefix, path, x)), items)
                
-        debug( 'Items: ' + str(items))
+        debug( 'Items: ' + unicode(items))
         return items
                 
     def gridFromPath(self, color_and_path = None):
