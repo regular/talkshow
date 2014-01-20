@@ -1,25 +1,33 @@
 import os
 import math
+import glob
+import subprocess
 
 from talkshowLogger import logger
-debug = logger.debug
-info = logger.info
-warn = logger.warn
-
-try: 
+try:
     import CommandBar
     from wrappers import *
     from widget import *
-    import glob
-    import subprocess
     import animated_property
     if sys.platform == 'win32':
-        import _winreg    
-except(Exception):
-    logger.exception("exception!")
+        import _winreg
+
+    from talkshowConfig import config as configClass
+    #from vlcPlayer import vlcPlayer
+
+except Exception as e:
+    logger.exception("exception! Details: {}".format(e))
     raise
-    
-    
+
+# function alias
+debug = logger.debug
+info = logger.info
+warn = logger.warn
+error = logger.error
+
+
+
+
 
 
 #TODO: make this configurable
@@ -48,6 +56,9 @@ def clamp(v, low=0.0, high=1.0):
     if v>high: v = high
     if v<low: v = low
     return v
+
+
+
 
 class Field(Widget):    
     def __init__(self, parent, x, y, w, h, text):
@@ -191,11 +202,11 @@ class Grid(Widget):
         field = None
         if Talkshow.ScanOn:
             
-            if talkshow.CurrentField < len(talkshow.grid.fields):
-                field = self.fields[talkshow.CurrentField]
+            if self.delegate.CurrentField < len(self.delegate.grid.fields):
+                field = self.fields[self.delegate.CurrentField]
             else:
-                debug( 'Den Knopf ' + str(talkshow.CurrentButton+1) + ' ausfuehren...')
-                talkshow.HandlerList[talkshow.CurrentButton]()
+                debug( 'Den Knopf ' + str(self.delegate.CurrentButton+1) + ' ausfuehren...')
+                self.delegate.HandlerList[self.delegate.CurrentButton]()
                 
         else:
             for f in self:
@@ -227,7 +238,8 @@ class Grid(Widget):
        
 class Talkshow(Widget):
     
-    VOLUME_MAX = 1    
+    VOLUME_MAX = 1
+    ScanOn = 0
     
     ColorOld     = style.box.background_color
     highlightingColours = {0 : style.divhoverbox1.background_color,
@@ -239,24 +251,28 @@ class Talkshow(Widget):
                6 : style.divhoverbox7.background_color,
                7 : style.divhoverbox8.background_color}
     
-    ScanOn = 0
-    
-    def __init__(self, screen):
+
+    def __init__(self, config, screen, player):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)
                 
                 
         self.screen = screen
+        self.config = config
         
         self.menuBar = CommandBar.MenuBar(self.screen, ORIENTATION)
         self.playerBar = CommandBar.PlayerBar(self.screen, ORIENTATION)
-                
+
+
+        self.player = player
+
+        #self.player.play("content/Drei/nicht_nur_europa.wav")
         
         #self.DoLayout()
         
         self.count = 9    
         
         # TODO: FIX in order to avoid crashes
-        self.pathPrefix   = "./Content/"
+        self.pathPrefix   = config.CONTENT_DIRECTORY
         self.MenuPrefix = "Menu"
         self.path         = ""
         self.grid         = None
@@ -284,6 +300,20 @@ class Talkshow(Widget):
         
         # create grid
         self.gridFromPath()
+
+    def initializeConfig(self):
+        if os.path.isdir(self.config.CONTENT_DIRECTORY):
+            CONTENT_DIRECTORY = self.config.CONTENT_DIRECTORY
+            return
+        possible_content_paths = ["Content", "content", "Inhalt", "inhalt"]
+        warn("{} is not a valid content directory.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+        for path in possible_content_paths:
+            if os.path.isdir(path):
+                info("setting content Path to : {}".format(os.path.abspath(path)))
+                self.config.CONTENT_DIRECTORY = os.path.abspath(path)
+                return
+        error("{} is not a valid content directory.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+
         
     def onResize(self, width, height):
         
@@ -423,8 +453,8 @@ class Talkshow(Widget):
         if self.PlaybackFlag:
             try:
                 self.PlaybakcProc.terminate()
-            except(Exception):
-                logger.exception("Could not kill media player process...")
+            except Exception as e:
+                logger.exception("Could not kill media player process... {}".format(e))
                 warn( "some process might not have exited! Use your task manager to kill the wmplayer.exe process if needed. ")
         sys.exit(0)
     
@@ -611,7 +641,7 @@ class Talkshow(Widget):
     def home(self):
         if self.MenuFlag:
             self.MenuFlag = 0
-            self.pathPrefix = './Content/'
+            self.pathPrefix = self.config.CONTENT_DIRECTORY
             
         l = self.path = ""
         self.gridFromPath()
@@ -621,8 +651,8 @@ class Talkshow(Widget):
         if self.PlaybackFlag:
             items = ['Quit']
         else:
-            items = os.listdir(unicode(prefix+path))        
-            items = filter(lambda x: os.path.isdir(prefix + path + "/" + x), items)     
+            items = os.listdir(os.path.join(prefix, path))
+            items = filter(lambda x: os.path.isdir(os.path.join(prefix, path, x)), items)
                
         debug( 'Items: ' + str(items))
         return items
@@ -734,23 +764,23 @@ class Talkshow(Widget):
             #self.home()
             return 1
         elif Command == 'Very fast':
-            talkshow.TimeStep = 500
+            self.TimeStep = 500
             return 2
             
         elif Command == 'Very slow':
-            talkshow.TimeStep = 5000
+            self.TimeStep = 5000
             return 2
             
         elif Command == 'Faster':
-            talkshow.TimeStep = talkshow.TimeStep - TimeStepIncrement
+            self.TimeStep = self.TimeStep - TimeStepIncrement
             return 2
             
         elif Command == 'Slower':
-            talkshow.TimeStep = talkshow.TimeStep + TimeStepIncrement
+            self.TimeStep = self.TimeStep + TimeStepIncrement
             return 2
             
         elif Command == 'Default':
-            talkshow.TimeStep = TimeStepDefault
+            self.TimeStep = TimeStepDefault
             return 2
         
         elif Command == 'OK':
@@ -783,103 +813,109 @@ class Talkshow(Widget):
         
     def DoScan(self,TimeNow):
         NumButtons    = len(self.ButtonList)
-        
-        if Talkshow.ScanOn:
-            
-            if (self.CurrentField >= len(self.grid.fields)-1 and self.CurrentButton < NumButtons-1):
-                # select & highlight a button
-                
-                LastField = self.grid.fields[-1]
-                LastField.color = self.ColorOld
-                self.CurrentField = len(self.grid.fields) + 1
-                self.CurrentButton = self.CurrentButton + 1
-                
-                debug('Button ' + str(self.CurrentButton+1) + 'von' + str(len(self.ButtonList)))
-                #self.homeButton.bar.parent = None
-                Button     = self.ButtonList[self.CurrentButton]
-                LastButton = self.ButtonList[self.CurrentButton-1]
-                Button.bar     = Box(Button.container    , "bar", self.homeButton.w, self.homeButton.h, s=HighlightBarSettings)
-                LastButton.bar = Box(LastButton.container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
-                #b.x, b.y = 3,3
-                
-                
-            else:
-                # select & highlight a field (box)
-                
-                if self.CurrentButton >= NumButtons-1:
-                    self.ButtonList[self.CurrentButton].bar = Box(self.ButtonList[self.CurrentButton].container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
-                    self.CurrentField = -1
-                    self.CurrentButton = -1
-                    
-                self.CurrentField = self.CurrentField + 1
-                
-                Field     = self.grid.fields[self.CurrentField]
-                LastField = self.grid.fields[self.CurrentField-1]
-                a = self.grid
-                debug(str(self.CurrentField+1) + str(Field.text))
-                self.playName(unicode(self.pathPrefix + self.pathForField(Field.index)))
-            
-                #Field.startHighlight()
-                LastField.color = self.ColorOld
-                self.ColorOld = Field.color
-                Field.color = self.highlightingColours[self.CurrentField]
-                
-                
-            
+
+        if (self.CurrentField >= len(self.grid.fields)-1 and self.CurrentButton < NumButtons-1):
+            # select & highlight a button
+
+            LastField = self.grid.fields[-1]
+            LastField.color = self.ColorOld
+            self.CurrentField = len(self.grid.fields) + 1
+            self.CurrentButton = self.CurrentButton + 1
+
+            debug('Button ' + str(self.CurrentButton+1) + 'von' + str(len(self.ButtonList)))
+            #self.homeButton.bar.parent = None
+            Button     = self.ButtonList[self.CurrentButton]
+            LastButton = self.ButtonList[self.CurrentButton-1]
+            Button.bar     = Box(Button.container    , "bar", self.homeButton.w, self.homeButton.h, s=HighlightBarSettings)
+            LastButton.bar = Box(LastButton.container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
+            #b.x, b.y = 3,3
+
+
+        else:
+            # select & highlight a field (box)
+
+            if self.CurrentButton >= NumButtons-1:
+                self.ButtonList[self.CurrentButton].bar = Box(self.ButtonList[self.CurrentButton].container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
+                self.CurrentField = -1
+                self.CurrentButton = -1
+
+            self.CurrentField = self.CurrentField + 1
+
+            Field     = self.grid.fields[self.CurrentField]
+            LastField = self.grid.fields[self.CurrentField-1]
+            a = self.grid
+            debug(str(self.CurrentField+1) + str(Field.text))
+            self.playName(unicode(self.pathPrefix + self.pathForField(Field.index)))
+
+            #Field.startHighlight()
+            LastField.color = self.ColorOld
+            self.ColorOld = Field.color
+            Field.color = self.highlightingColours[self.CurrentField]
                 
             self.TimeOld  = TimeNow
 
-# boilerplate
-def tick():
-    
-    TimeNow = time.time()*1000
-    
-    if animated_property.T == 0.0:
-        # initializing
-        TimeOld = TimeNow
-    else:
-        TimeOld = talkshow.TimeOld
-        
-    animated_property.T = TimeNow
-    animated_property.AnimatedProperty.tick()
-    
-    if TimeNow - TimeOld > talkshow.TimeStep:
-        
-        talkshow.DoScan(TimeNow)
-        
-    return True
-              
+    # boilerplate
+    def tick(self):
+        if not Talkshow.ScanOn:
+            return
 
-try: 
-    
+        TimeNow = time.time()*1000
 
+        if animated_property.T == 0.0:
+            # initializing
+            TimeOld = TimeNow
+        else:
+            TimeOld = self.TimeOld
+
+        animated_property.T = TimeNow
+        animated_property.AnimatedProperty.tick()
+
+        if TimeNow - TimeOld > self.TimeStep:
+            self.DoScan(TimeNow)
+        return True
+
+
+def main():
+    """
+    Start of talkshow execution
+    """
+
+    logger.debug("initialising talkshow.")
+
+
+    # initialise screen heights and widths
     try:
         screenWidth = talkshowConfig.windowWidth
         screenHeight = talkshowConfig.windowHeight
-        if screenHeight == 0 or screenWidth == 0:        
+        if screenHeight == 0 or screenWidth == 0:
             screenWidth = int(style.page.width)
-            screenHeight = int(style.page.height)        
+            screenHeight = int(style.page.height)
     except:
         screenWidth = int(style.page.width)
         screenHeight = int(style.page.height)
-        
-    
-    screen = Screen("KommHelp Talkshow", "",screenWidth, screenHeight)
-    
-    
-    logger.debug("initialising talkshow.")
-    
-    
-    talkshow = Talkshow(screen)
-    
+
+    # screen object to be passed into Talkshow instance
+    screen = Screen("KommHelp Talkshow", "", screenWidth, screenHeight)
+
+
+    # initialise config and vlcPlayer
+    config = configClass()
+    #player = vlcPlayer()
+    player =""
+
+    # talkshow object and handler
+    talkshow = Talkshow(config, screen, player)
     screen.event_handler = talkshow
-    
-    
-    
-    
-    pc = PeriodicCall(tick,0)
+
+    # periodicCall used for Scan mode
+    pc = PeriodicCall(talkshow.tick,0)
     pyglet.app.run()
 
-except(Exception):
-    logger.exception("exception!")
-    raise
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        #log all and any exceptions to file
+        logger.exception("exception! {}".format(e))
+        raise
