@@ -30,13 +30,14 @@ windowHeight = 0
 
 # The directory containing menu images and the .CSS style file:
 #DEFAULT: styleDirectory = "style"
-styleDirectory = 'style'
+STYLE_DIRECTORY = 'style'
 
 # The filename of the .CSS style file
 #DEFAULT: styleFilename = 'theme1.css'
-styleFilename = 'theme1.css'
+STYLE_FILENAME = 'theme1.css'
 
-
+# The directory with audio content inside: (case sensitive)
+CONTENT_DIRECTORY = "content"
 
 
 
@@ -55,11 +56,12 @@ class config(object):
     ## but these sizes are overridden by those in the style.css anyway.
     FONT_SIZE_DEFAULT = 32
     FONT_SIZE_VOL = 16
-    
+
     try: NO_TEXT_IF_IMAGE_AVAILABLE = bool(noTextIfImageAvailable)
     except: NO_TEXT_IF_IMAGE_AVAILABLE = 0
     
     def __init__(self):
-        self.path = os.path.join(styleDirectory, styleFilename)
+        self.CONTENT_DIRECTORY = CONTENT_DIRECTORY
+        self.path = os.path.join(STYLE_DIRECTORY, STYLE_FILENAME)
         self.parser = parseCSS.CSSParser(self.path)
         self.style = self.parser.style
