@@ -4,3 +4,7 @@
 *.pyc
 otherStuff/otherIcons/
 Julius*
+.idea
+debug.log
+warn.log
+vlcRecipes

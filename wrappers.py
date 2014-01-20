@@ -3,6 +3,7 @@ from sys import getrefcount
 import string
 import talkshowConfig
 
+
 style = talkshowConfig.config().parser.style
 
 from talkshowLogger import logger
