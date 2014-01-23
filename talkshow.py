@@ -1,9 +1,35 @@
 import os
 import math
 import glob
-import subprocess
+import sys
 
 from talkshowLogger import logger
+# function alias
+debug = logger.debug
+info = logger.info
+warn = logger.warn
+error = logger.error
+info("Initialising talkshow. Version of Python: %s" % str(sys.version))
+
+try:
+    import pyglet
+    info("pyglet seems installed and working fine.")
+except:
+    logger.error("Pyglet (a python library) is not installed. Talkshow cannot work. Please install pyglet")
+
+try:
+    import tinycss
+    info("tinyCSS seems installed and working fine.")
+except:
+    logger.error("TinyCSS (a python library) is not installed. Talkshow cannot work. Please install tinyCSS")
+
+try:
+    import vlc
+    vlc_test_instance = vlc.Instance()
+    info("VLC seems available and working fine. Audio playback should work.")
+except:
+    logger.error("There is a problem with VLC. Either you are using the wrong version of talkshow (32/64 bit), or there is a bug in the code, or you can try and install VLC.")
+
 try:
     import CommandBar
     from wrappers import *
@@ -16,14 +42,10 @@ try:
     from vlcPlayer import vlcPlayer
 
 except Exception as e:
-    logger.exception("exception! Details: {}".format(e))
+    logger.exception("exception! Details: {0}".format(e))
     raise
 
-# function alias
-debug = logger.debug
-info = logger.info
-warn = logger.warn
-error = logger.error
+
 
 
 
@@ -305,13 +327,13 @@ class Talkshow(Widget):
             CONTENT_DIRECTORY = self.config.CONTENT_DIRECTORY
             return
         possible_content_paths = ["Content", "content", "Inhalt", "inhalt"]
-        warn("{} is not a valid content directory.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+        warn("{0} is not a valid content directory.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
         for path in possible_content_paths:
             if os.path.isdir(path):
-                info("setting content Path to : {}".format(os.path.abspath(path)))
+                info("setting content Path to : {0}".format(os.path.abspath(path)))
                 self.config.CONTENT_DIRECTORY = os.path.abspath(path)
                 return
-        error("{} is not a valid content directory.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+        error("{0} is not a valid content directory.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
 
         
     def onResize(self, width, height):
@@ -453,7 +475,7 @@ class Talkshow(Widget):
             try:
                 self.PlaybakcProc.terminate()
             except Exception as e:
-                logger.exception("Could not kill media player process... {}".format(e))
+                logger.exception("Could not kill media player process... {0}".format(e))
                 warn( "some process might not have exited! Use your task manager to kill the wmplayer.exe process if needed. ")
         sys.exit(0)
     
@@ -484,7 +506,7 @@ class Talkshow(Widget):
             #self.playPath_AudioRecorder(self.pathPrefix + self.pathForField(f.index))
     
     def iconForPath(self, path):
-        images = glob.globl(path, "*.png")
+        images = glob.glob(str(path)+os.sep+ "*.png")
         if images:
             path = normalizePath(images[0])
             i = wrappers.Image(None, path, path)
@@ -515,12 +537,12 @@ class Talkshow(Widget):
             mediaFiles += glob.glob1(path, pattern)
 
         debug(path)
-        debug("audio files under {}: {}. Playing the first one if there is one...".format(path, mediaFiles))
+        debug("audio files under {0}: {1}. Playing the first one if there is one...".format(path, mediaFiles))
 
         if mediaFiles:
             self.player.play(os.path.join(path, mediaFiles[0]))
         else:
-            info("no media file found under {}".format(path))
+            info("no media file found under {0}".format(path))
 
 
                 
@@ -546,6 +568,8 @@ class Talkshow(Widget):
             self.setVolume(self.volume + self.volumeIncrease)
                  
     def back(self):
+
+        self.player.stop()
         l = self.path.split("/")
         
         if l:
@@ -597,7 +621,7 @@ class Talkshow(Widget):
             self.PlaybackCommand(path[path.rfind('/')+1:],self.PlaybakcProc)
             
             
-        debug("prefix=[{}] path =[{}]".format(self.pathPrefix, self.path))
+        debug("prefix=[{0}] path =[{1}]".format(self.pathPrefix, self.path))
         debug(self.pathPrefix + path)
         
         self.items =  self.subdirs(self.pathPrefix, self.path)
@@ -830,5 +854,5 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         #log all and any exceptions to file
-        logger.exception("exception! {}".format(e))
+        logger.exception("exception! {0}".format(e))
         raise

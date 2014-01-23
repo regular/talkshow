@@ -23,14 +23,18 @@ class vlcPlayer(object):
         self.player = self.instance.media_player_new()
 
 
+    def stop(self):
+        self.player.stop()
+
+
     def play(self, path_to_media_file):
         if not os.path.isfile(path_to_media_file):
-            warn("This file: {} does not exist. Full path: {}".format(path_to_media_file, os.path.abspath(path_to_media_file)))
+            warn("This file: {0} does not exist. Full path: {1}".format(path_to_media_file, os.path.abspath(path_to_media_file)))
             return
         try:
             media = self.instance.media_new(path_to_media_file)
         except Exception as e:
-            logger.exception("exception! {}".format(e))
+            logger.exception("exception! {0}".format(e))
             warn('NameError: %s (LibVLC %s)' % (sys.exc_info()[1],vlc.libvlc_get_version()))
         self.player.set_media(media)
         self.player.play()
