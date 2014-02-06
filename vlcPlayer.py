@@ -21,6 +21,8 @@ class vlcPlayer(object):
     def __init__(self):
         self.instance = vlc.Instance()
         self.player = self.instance.media_player_new()
+        self.VOLUME_STEP = 10
+        info("current volume: {0}".format(self.player.audio_get_volume()))
 
 
     def stop(self):
@@ -38,6 +40,26 @@ class vlcPlayer(object):
             warn('NameError: %s (LibVLC %s)' % (sys.exc_info()[1],vlc.libvlc_get_version()))
         self.player.set_media(media)
         self.player.play()
+
+    def getVolume(self):
+        volume = self.player.audio_get_volume()
+        if volume < 0:
+            volume = 100
+        return volume
+
+    def volumeUp(self):
+        volume = self.player.audio_get_volume()
+        volume = min((volume + self.VOLUME_STEP), 100)
+        self.player.audio_set_volume(volume)
+
+    def volumeMax(self):
+        self.player.audio_set_volume(100)
+
+    def volumeDown(self):
+        volume = self.player.audio_get_volume()
+        volume = max((volume - self.VOLUME_STEP), 0)
+        self.player.audio_set_volume(volume)
+
 
 
 AUDIO_FORMATS = ["*.2sf", "*.2sflib", "*.3ga", "*.4mp", "*.669", "*.6cm", "*.8cm",

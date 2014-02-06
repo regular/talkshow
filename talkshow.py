@@ -11,6 +11,7 @@ warn = logger.warn
 error = logger.error
 info("Initialising talkshow. Version of Python: %s" % str(sys.version))
 
+
 try:
     import pyglet
     info("pyglet seems installed and working fine.")
@@ -29,6 +30,12 @@ try:
     info("VLC seems available and working fine. Audio playback should work.")
 except:
     logger.error("There is a problem with VLC. Either you are using the wrong version of talkshow (32/64 bit), or there is a bug in the code, or you can try and install VLC.")
+
+try:
+    os.path.isdir
+except:
+    logger.error("There is a problem with VLC. Either you are using the wrong version of talkshow (32/64 bit), or there is a bug in the code, or you can try and install VLC.")
+
 
 try:
     import CommandBar
@@ -280,6 +287,7 @@ class Talkshow(Widget):
                 
         self.screen = screen
         self.config = config
+        self.initializeConfig()
         
         self.menuBar = CommandBar.MenuBar(self.screen, ORIENTATION)
         self.playerBar = CommandBar.PlayerBar(self.screen, ORIENTATION)
@@ -323,17 +331,30 @@ class Talkshow(Widget):
         self.gridFromPath()
 
     def initializeConfig(self):
-        if os.path.isdir(self.config.CONTENT_DIRECTORY):
-            CONTENT_DIRECTORY = self.config.CONTENT_DIRECTORY
-            return
-        possible_content_paths = ["Content", "content", "Inhalt", "inhalt"]
-        warn("{0} is not a valid content directory.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
-        for path in possible_content_paths:
-            if os.path.isdir(path):
-                info("setting content Path to : {0}".format(os.path.abspath(path)))
-                self.config.CONTENT_DIRECTORY = os.path.abspath(path)
-                return
-        error("{0} is not a valid content directory.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+        # set content directory
+        if not os.path.isdir(self.config.CONTENT_DIRECTORY):
+            possible_content_paths = ["Content", "content", "Inhalt", "inhalt"]
+            warn("{0} is not a valid content directory. Trying defaults...".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+            path_set = False
+            for path in possible_content_paths:
+                if os.path.isdir(path):
+                    info("setting content Path to : {0}".format(os.path.abspath(path)))
+                    self.config.CONTENT_DIRECTORY = os.path.abspath(path)
+                    path_set = True
+                    break
+            if not path_set:
+                error("{0} is not a valid content directory. Unable to find content.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+
+        #set alarm directory
+        alarmDir = os.path.join(self.config.CONTENT_DIRECTORY, 'Alarm')
+        if os.path.isdir(alarmDir):
+            self.ALARM_DIRECTORY = alarmDir
+            info("Alarm sound is loaded from {0}".format(self.ALARM_DIRECTORY))
+        else:
+            self.ALARM_DIRECTORY = 'alarm'
+            warn("Expected folder {1} under {0} does not exist. \
+            Please create a folder named 'Alarm' under your content directory and place an alarm sound file into it. \
+            Defaulting back to inbuilt alarm sound.".format(alarmDir, self.config.CONTENT_DIRECTORY))
 
         
     def onResize(self, width, height):
@@ -506,7 +527,7 @@ class Talkshow(Widget):
             #self.playPath_AudioRecorder(self.pathPrefix + self.pathForField(f.index))
     
     def iconForPath(self, path):
-        images = glob.glob(str(path)+os.sep+ "*.png")
+        images = glob.glob(str(path) + "/*.png")
         if images:
             path = normalizePath(images[0])
             i = wrappers.Image(None, path, path)
@@ -536,36 +557,37 @@ class Talkshow(Widget):
         for pattern in mediaPatterns:
             mediaFiles += glob.glob1(path, pattern)
 
-        debug(path)
         debug("audio files under {0}: {1}. Playing the first one if there is one...".format(path, mediaFiles))
 
         if mediaFiles:
             self.player.play(os.path.join(path, mediaFiles[0]))
         else:
-            info("no media file found under {0}".format(path))
+            warn("no media file found under {0}".format(path))
 
 
                 
-    def setVolume(self, v):
-        #tubifex.volume = v
-        self.volume = v
-        Sound.setGlobalVolume(v)
-        self.setVolumeText()        
+
         
         
-    def setVolumeText(self):
-        volumeText = "   " + str(int(10*self.volume))        
+    def setVolumeText(self, volume=None):
+        if not volume:
+            volume = self.player.getVolume()
+        volumeText = "   " + str(int(volume/10))
         try: self.volumeLabel.text = volumeText
         except: pass
         return volumeText
+
+    def volumeMax(self):
+        self.player.volumeMax()
+        self.setVolumeText(self.player.getVolume())
         
     def volumeDown(self):
-        if self.volume >= 0.1:
-            self.setVolume(self.volume - self.volumeIncrease)
+        self.player.volumeDown()
+        self.setVolumeText(self.player.getVolume())
         
     def volumeUp(self):
-        if self.volume < self.VOLUME_MAX:
-            self.setVolume(self.volume + self.volumeIncrease)
+        self.player.volumeUp()
+        self.setVolumeText(self.player.getVolume())
                  
     def back(self):
 
@@ -660,8 +682,8 @@ class Talkshow(Widget):
             
     def DrawAttention(self):
         debug( "drawattention?")
-        self.setVolume(Talkshow.VOLUME_MAX)
-        self.playPath(self.MenuPrefix + os.sep + 'Alarm')
+        self.volumeMax()
+        self.playPath(self.ALARM_DIRECTORY)
         
     def menu(self):
 
