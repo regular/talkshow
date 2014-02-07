@@ -3,7 +3,7 @@
 
 This section is meant for developers or people who wish to change the functionality of the KommHELP talkshow application. A normal user should not need to read this section, please refer instead to the [INSTALLATION](../README.md#INSTALLATION) section.
 
-See [other operating systems](#other) if you're not on Windows.
+See the section "other operating systems" at the bottom if you're not on Windows.
 
 ### Step 1: Install Python
 
@@ -18,8 +18,11 @@ For the rest of this document I will assume you installed python to `C:\Python27
 
 * download PIP for windows: [https://sites.google.com/site/pydatalog/python/pip-for-windows](https://sites.google.com/site/pydatalog/python/pip-for-windows)
 * open the downloaded file, it might open a few command line windows and ask you to press a key - just press enter and wait for it to download what's necessary. Point it to your python executable (for example `C:\Python27_32bit\python.exe`):
+
 ![pip1](pip-win1.png)
+
 Next, enter `pip install tinycss pyglet` into the second text field, and press `Run`:
+
 ![pip1](pip-win2.png)
 
 ### Step 3: Configure python on your system
@@ -81,7 +84,7 @@ if you have the libvlc.dll, libvlccore.dll and the vlc plugins directory in the 
 This will generate a `talkshow.exe` file under `dist\talkshow` containing all the needed dependencies that you can distribute. You need to provide your own `content` folder alongside. 
 
 
-### Other Operating Systems [other]
+### Other Operating Systems 
 
 If you have Python 2.7, download [pip](http://www.pip-installer.org/en/latest/installing.html) and then do
 

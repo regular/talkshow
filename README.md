@@ -10,7 +10,7 @@ With Talkshow, we try to provide a solution based solely on Open Source software
 
 ## LICENCE
 
-Talkshow open source software licensed under the terms of the GPLv3, which guarantees end users (individuals, organizations, companies) the freedoms to use, study, share (copy), and modify the software. If you make changes to the code however, you need to make the source code of these changes available to the public.
+Talkshow open source software licensed under the terms of the GPLv3, which guarantees end users (individuals, organizations, companies) the freedoms to use, study, share (copy), and modify the software. See [LICENSE](LICENSE.md) for details.
 
 ## INSTALLATION
 
@@ -24,13 +24,13 @@ You should now be able to use run talkshow. In case of problems, please send me 
 
 ### Advanced: install from source
 
-Please see [installation from source](/doc/INSTALLATION_FROM_PYHON_SOURCE) if you want to run the python source version of KommHELP talkshow or if you want to make changes to the code.
+Please see installation from source document under `/doc/INSTALLATION_FROM_PYHON_SOURCE.md` if you want to run the python source version of KommHELP talkshow or if you want to make changes to the code.
 
-## USAGE / CREATING CONTENT [usage]
+## USAGE / CREATING CONTENT 
 
 The user interface consists of colored rectangles that either play a sound or contain more colored rectangles.
 All rectangles have a caption and optionally may have an associated icon (.png).
-You create this hierarchy of rectangles by creating a hierarchy of subdirectories in the content directory, one subdirectory per rectangle. Each subdirectory may contain more subdirectories or a sound file (see [supported formats](#formats) and an image that will be used as the rectangle's icon. The sound file will be played once the rectangle is touched in the User Interface. The name of the directory will be used as the caption of the rectangle if there is no image.
+You create this hierarchy of rectangles by creating a hierarchy of subdirectories in the content directory, one subdirectory per rectangle. Each subdirectory may contain more subdirectories or a sound file and an image that will be used as the rectangle's icon. The sound file will be played once the rectangle is touched in the User Interface. The name of the directory will be used as the caption of the rectangle if there is no image.
 
 See the provided content directory structure as an example.
 
@@ -53,7 +53,7 @@ KommHELP Talkshow has been written in Python and requires :
 
 It has been tested on Windows and linux, but should also work on Mac OS (not tested yet). It is based on 32bit Python 2.7 with the VLC 32 bit version. If both VLC and your version of Python are 64 bit, it can also work without further changes.
 
-See [installation from source](doc/INSTALLATION_FROM_PYHON_SOURCE) for more details on dependencies. 
+See [installation from source](doc/INSTALLATION_FROM_PYHON_SOURCE.md) for more details on dependencies. 
 
 ## BACKGROUND
 
