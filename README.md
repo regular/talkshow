@@ -18,13 +18,13 @@ Talkshow open source software licensed under the terms of the GPLv3, which guara
 
 * Download the talkshow.exe file
 * Download and install the VLC media player from [this direct link](https://get.videolan.org/vlc/2.1.3/win32/vlc-2.1.3-win32.exe) or choose another version from [https://www.videolan.org/](https://www.videolan.org/). Please make sure it's 32 bit.
-* Create a folder called "content" next to the talkshow.exe file, and fill it with subfolders containing media files and optionally png images (see [usage instructions](#usage).
+* Create a folder called "content" next to the talkshow.exe file, and fill it with subfolders containing media files and optionally png images (see usage instructions below).
 
 You should now be able to use run talkshow. In case of problems, please send me (joe.schaul@gmail.com) the debug.log file that was created next to the talkshow.exe file.
 
 ### Advanced: install from source
 
-Please see [installation from source](doc/INSTALLATION_FROM_PYHON_SOURCE) if you want to run the python source version of KommHELP talkshow or if you want to make changes to the code.
+Please see [installation from source](/doc/INSTALLATION_FROM_PYHON_SOURCE) if you want to run the python source version of KommHELP talkshow or if you want to make changes to the code.
 
 ## USAGE / CREATING CONTENT [usage]
 
