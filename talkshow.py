@@ -31,11 +31,6 @@ try:
 except:
     logger.error("There is a problem with VLC. Either you are using the wrong version of talkshow (32/64 bit), or there is a bug in the code, or you can try and install VLC.")
 
-try:
-    os.path.isdir
-except:
-    logger.error("There is a problem with VLC. Either you are using the wrong version of talkshow (32/64 bit), or there is a bug in the code, or you can try and install VLC.")
-
 
 try:
     import CommandBar
