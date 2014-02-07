@@ -45,19 +45,14 @@ other_data_files = Datafiles('README.md')
 pyz = PYZ(a.pure)
 exe = EXE(pyz,
           a.scripts,
-          exclude_binaries=True,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
+	      style,
+	      alarm,
+	      other_data_files,
           name='talkshow.exe',
           debug=False,
           strip=None,
           upx=True,
-          console=True )
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               style,
-               alarm,
-               other_data_files,
-               strip=None,
-               upx=True,
-               name='talkshow')
+          console=False )

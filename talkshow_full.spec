@@ -51,26 +51,20 @@ alarm = Datafiles(*data_list, strip_path=False)
 
 # add static files
 other_data_files = Datafiles('README.md')
-
-
+other_vlc = Datafiles('libvlc.dll', 'libvlccore.dll', 'npvlc.dll', 'axvlc.dll')
 
 pyz = PYZ(a.pure)
 exe = EXE(pyz,
           a.scripts,
-          exclude_binaries=True,
-          name='talkshow.exe',
+          a.binaries,
+          a.zipfiles,
+          a.datas,
+		  vlc_plugins,
+	      style,
+	      alarm,
+	      other_data_files,
+          name='talkshow_includingVLC.exe',
           debug=False,
           strip=None,
           upx=True,
-          console=True )
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               vlc_plugins,
-               style,
-               alarm,
-               other_data_files,
-               strip=None,
-               upx=True,
-               name='talkshow')
+          console=False )

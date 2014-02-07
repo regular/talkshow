@@ -66,7 +66,9 @@ C:\Python27_32bit\python.exe path_to_talkshow_folder\talkshow.py
 
 ### How to distribute kommHelp talkshow as a windows binary: Compile python sources to .exe executable
 
-Download and install **pywin32** from this [direct link](http://sourceforge.net/projects/pywin32/files/pywin32/Build%20218/pywin32-218.win32-py2.7.exe/download) (if it does not work, find the version you need from here: [http://sourceforge.net/projects/pywin32/files/](http://sourceforge.net/projects/pywin32/files/)
+Download and install **pywin32** from this [direct link](http://sourceforge.net/projects/pywin32/files/pywin32/Build%20218/pywin32-218.win32-py2.7.exe/download) (if it does not work, find the version you need from here: [http://sourceforge.net/projects/pywin32/files/](http://sourceforge.net/projects/pywin32/files/). Pywin32 is needed to use pyinstaller.
+
+Download **UPX** from [http://upx.sourceforge.net/](http://upx.sourceforge.net/). Unzip it and copy the executable to the folder containing talkshow.py. This adds compression to the compiled files. 
 
 Install **pyinstaller** with pip: `pip install pyinstaller` (see [Step 2 for how to get pip on Windows](#pip)).
 
@@ -76,10 +78,10 @@ Change directory to the folder containing the talkshow.py file: `cd your\path\to
 Then execute the pyinstaller command with the following arguments:
 
 ```
-pyinstaller talkshow_noVLC.spec --clean -noconfirm --noconsole --onefile
+pyinstaller talkshow_noVLC.spec
 ```
 
-if you have the libvlc.dll, libvlccore.dll and the vlc plugins directory in the same directory than the talkshow.py file you can also use the talkshow_full.spec file to include VLC in the windows binary.
+if you have the libvlc.dll, libvlccore.dll and the vlc plugins directory in the same directory than the talkshow.py file you can also use the talkshow_full.spec file to include VLC in the windows binary. This assumes you have the above DLL files and a folder "plugins" from VLC available in the talkshow directory. You can copy them from the installation directoy of your VLC
 
 This will generate a `talkshow.exe` file under `dist\talkshow` containing all the needed dependencies that you can distribute. You need to provide your own `content` folder alongside. 
 

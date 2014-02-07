@@ -53,7 +53,7 @@ KommHELP Talkshow has been written in Python and requires :
 
 It has been tested on Windows and linux, but should also work on Mac OS (not tested yet). It is based on 32bit Python 2.7 with the VLC 32 bit version. If both VLC and your version of Python are 64 bit, it can also work without further changes.
 
-See [installation from source](doc/INSTALLATION_FROM_PYHON_SOURCE.md) for more details on dependencies. 
+See [installation from source!](doc/INSTALLATION_FROM_PYHON_SOURCE.md) for more details on dependencies. 
 
 ## BACKGROUND
 
