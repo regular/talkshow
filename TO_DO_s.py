@@ -7,20 +7,25 @@ Created on 20 May 2013
 List of bugs/features to be implemented
 '''
 
+
+#TODO: stop function when clicking "back"
+
 '''general'''
 
-# text to speech? 
 
-# avbin support? 
-#from pyglet.media import avbin
+# VLC as standard - but windows media player as backup?
+# remove unnecessary VLC stuff to keep size down
+
+
 
 
 '''features '''
 # change system volume instead of program volume only
 
-# play mp3 and other sound files
-
 # play videos?
+
+
+# text to speech?
 
 # make config file changeable by the program, with default config file to "reset" config file.
 # default config file to be included in the exe, the other to live outside.

@@ -1,25 +1,59 @@
 import os
 import math
+import glob
+import sys
 
 from talkshowLogger import logger
+# function alias
 debug = logger.debug
 info = logger.info
 warn = logger.warn
+error = logger.error
+import talkshowUtils
+info("Initialising talkshow. Version of Python: %s" % str(sys.version))
 
-try: 
+
+try:
+    import pyglet
+    info("pyglet seems installed and working fine.")
+except:
+    logger.error("Pyglet (a python library) is not installed. Talkshow cannot work. Please install pyglet")
+
+try:
+    import tinycss
+    info("tinyCSS seems installed and working fine.")
+except:
+    logger.error("TinyCSS (a python library) is not installed. Talkshow cannot work. Please install tinyCSS")
+
+try:
+    import vlc
+    vlc_test_instance = vlc.Instance()
+    info("VLC seems available and working fine. Audio playback should work.")
+except:
+    logger.error("There is a problem with VLC. Either you are using the wrong version of talkshow (32/64 bit), or there is a bug in the code, or you can try and install VLC.")
+
+
+try:
     import CommandBar
     from wrappers import *
     from widget import *
-    import glob
-    import subprocess
     import animated_property
     if sys.platform == 'win32':
-        import _winreg    
-except(Exception):
-    logger.exception("exception!")
+        import _winreg
+
+    from talkshowConfig import config as configClass
+    from vlcPlayer import vlcPlayer
+
+except Exception as e:
+    logger.exception("exception! Details: {0}".format(e))
     raise
-    
-    
+
+
+
+
+
+
+
 
 
 #TODO: make this configurable
@@ -48,6 +82,9 @@ def clamp(v, low=0.0, high=1.0):
     if v>high: v = high
     if v<low: v = low
     return v
+
+
+
 
 class Field(Widget):    
     def __init__(self, parent, x, y, w, h, text):
@@ -191,11 +228,11 @@ class Grid(Widget):
         field = None
         if Talkshow.ScanOn:
             
-            if talkshow.CurrentField < len(talkshow.grid.fields):
-                field = self.fields[talkshow.CurrentField]
+            if self.delegate.CurrentField < len(self.delegate.grid.fields):
+                field = self.fields[self.delegate.CurrentField]
             else:
-                debug( 'Den Knopf ' + str(talkshow.CurrentButton+1) + ' ausfuehren...')
-                talkshow.HandlerList[talkshow.CurrentButton]()
+                debug( 'Den Knopf ' + str(self.delegate.CurrentButton+1) + ' ausfuehren...')
+                self.delegate.HandlerList[self.delegate.CurrentButton]()
                 
         else:
             for f in self:
@@ -227,7 +264,8 @@ class Grid(Widget):
        
 class Talkshow(Widget):
     
-    VOLUME_MAX = 1    
+    VOLUME_MAX = 1
+    ScanOn = 0
     
     ColorOld     = style.box.background_color
     highlightingColours = {0 : style.divhoverbox1.background_color,
@@ -239,31 +277,35 @@ class Talkshow(Widget):
                6 : style.divhoverbox7.background_color,
                7 : style.divhoverbox8.background_color}
     
-    ScanOn = 0
-    
-    def __init__(self, screen):
+
+    def __init__(self, config, screen, player):
         Widget.__init__(self, screen, "Talkshow", w=screen.w, h=screen.h)
                 
                 
         self.screen = screen
+        self.config = config
+        self.initializeConfig()
         
         self.menuBar = CommandBar.MenuBar(self.screen, ORIENTATION)
         self.playerBar = CommandBar.PlayerBar(self.screen, ORIENTATION)
-                
+
+
+        self.player = player
+
+        #self.player.play("content/Drei/nicht_nur_europa.wav")
         
         #self.DoLayout()
         
         self.count = 9    
         
         # TODO: FIX in order to avoid crashes
-        self.pathPrefix   = "./Content/"
+        self.pathPrefix   = config.CONTENT_DIRECTORY
         self.MenuPrefix = "Menu"
         self.path         = ""
         self.grid         = None
         self.videoplayer  = None
         self.MenuFlag     = 0
         self.PlaybackFlag = 0
-        self.SetPlayer    ('WMP')
         
         self.TimeOld = 0.
         #self.newGrid()
@@ -284,6 +326,33 @@ class Talkshow(Widget):
         
         # create grid
         self.gridFromPath()
+
+    def initializeConfig(self):
+        # set content directory
+        if not os.path.isdir(self.config.CONTENT_DIRECTORY):
+            possible_content_paths = ["Content", "content", "Inhalt", "inhalt"]
+            warn("{0} is not a valid content directory. Trying defaults...".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+            path_set = False
+            for path in possible_content_paths:
+                if os.path.isdir(path):
+                    info("setting content Path to : {0}".format(os.path.abspath(path)))
+                    self.config.CONTENT_DIRECTORY = os.path.abspath(path)
+                    path_set = True
+                    break
+            if not path_set:
+                error("{0} is not a valid content directory. Unable to find content.".format(os.path.abspath(self.config.CONTENT_DIRECTORY)))
+
+        #set alarm directory
+        alarmDir = os.path.join(self.config.CONTENT_DIRECTORY, 'Alarm')
+        if os.path.isdir(alarmDir):
+            self.ALARM_DIRECTORY = alarmDir
+            info("Alarm sound is loaded from {0}".format(self.ALARM_DIRECTORY))
+        else:
+            self.ALARM_DIRECTORY = talkshowUtils.getRelativePath('alarm')
+            warn("Expected folder {1} under {0} does not exist. \
+            Please create a folder named 'Alarm' under your content directory and place an alarm sound file into it. \
+            Defaulting back to inbuilt alarm sound.".format(alarmDir, self.config.CONTENT_DIRECTORY))
+
         
     def onResize(self, width, height):
         
@@ -423,8 +492,8 @@ class Talkshow(Widget):
         if self.PlaybackFlag:
             try:
                 self.PlaybakcProc.terminate()
-            except(Exception):
-                logger.exception("Could not kill media player process...")
+            except Exception as e:
+                logger.exception("Could not kill media player process... {0}".format(e))
                 warn( "some process might not have exited! Use your task manager to kill the wmplayer.exe process if needed. ")
         sys.exit(0)
     
@@ -438,7 +507,7 @@ class Talkshow(Widget):
              
     def getFieldIcon(self, i):
         path = self.pathForField(i)
-        return self.iconForPath(self.pathPrefix + path)
+        return self.iconForPath(os.path.join(self.pathPrefix, path))
          
     def onFieldClicked(self, f):        
         if f != None:
@@ -451,11 +520,11 @@ class Talkshow(Widget):
                     #self.path = self.pathForField(f.index)     
                     self.grid.enterFIeld(f)
                     self.dc = DelayedCall(self.gridFromPath, 500, (style.page.background_color, self.pathForField(f.index)))
-            self.playPath(self.pathPrefix + self.pathForField(f.index))
+            self.playPath(os.path.join(self.pathPrefix, self.pathForField(f.index)))
             #self.playPath_AudioRecorder(self.pathPrefix + self.pathForField(f.index))
     
     def iconForPath(self, path):
-        images = glob.glob(path+"/*.png")
+        images = glob.glob(str(path) + "/*.png")
         if images:
             path = normalizePath(images[0])
             i = wrappers.Image(None, path, path)
@@ -477,130 +546,49 @@ class Talkshow(Widget):
             s.speed=1
             
     def playPath(self, path):
-        
-        WaveSounds = glob.glob(path+"/*.wav")
-        
-        debug(path)
-        logger.debug("sounds %s" % WaveSounds)
-        if WaveSounds:
-            wave = normalizePath(WaveSounds[0])
-            debug('playing: %s' % wave)
-            s = self.sound  = Sound(0, wave)
-            s.speed=1
-        else:
-            Media = glob.glob(path+"/*.avi") + glob.glob(path+"/*.wmv") + glob.glob(path+"/*.mpg") + glob.glob(path+"/*.mp3") + glob.glob(path+"/*.wma") + glob.glob(path+"/*.asf") + glob.glob(path+"/*.midi") + glob.glob(path+"/*.aiff") + glob.glob(path+"/*.au")
-        
-            if Media:
-                MediaString = ''
-                for filename in Media:
-                    WinName = WindowsPath(filename)
-                    MediaString = MediaString + ' "' + WinName + '"'
-                self.play_MediaPlayer(MediaString)
-                return
-            
-            
-    #def play_AudioRecorder(self, mp3):
-    #    AudioRecorderExe = 'c:\WINDOWS\system32\sndrec32.exe '
-    #    #Arguments        = '/embedding /play /close '
-    #    Arguments        = '/play /close '
-    #    os.system(AudioRecorderExe + Arguments + '"' + mp3 + '"')
-    
-    def Record_AudioRecorder(self, name):
-        AudioRecorderExe = 'c:\WINDOWS\system32\sndrec32.exe '
-        #Arguments        = '/embedding /play /close '
-        Arguments        = '/record /close '
-        os.system(AudioRecorderExe + Arguments + '"' + name + '"')
-            
-    def play_MediaPlayer(self, media):
-        
-        Arguments      = '--volume=1 '
 
-        #screen.window.set_fullscreen(0)
-        debug( 'Play command: ' + self.MediaPlayerExe + Arguments + media)
-        
-        si = subprocess.STARTUPINFO()
-        si.dwFlags     = subprocess.STARTF_USESHOWWINDOW
-        si.wShowWindow = subprocess.SW_HIDE
-        
-        self.PlaybakcProc = subprocess.Popen(self.MediaPlayerExe + Arguments + media,startupinfo = si)
+        mediaPatterns = ["*.wav", "*.avi", "*.wmv", "*.mpg", "*.mp3", "*.wma", "*.asf", "*.midi", "*.aiff", "*.au", "*.m4a"]
+        mediaPatterns_uppercase = [pattern.upper() for pattern in mediaPatterns]
+        mediaPatterns.extend(mediaPatterns_uppercase)
+        mediaFiles = []
+        for pattern in mediaPatterns:
+            mediaFiles += glob.glob1(path, pattern)
 
-        self.PlaybackFlag = 1
-        self.home()
-        #screen = Screen('', "", 40, 80, "#00007f")#screen.on_resize(50,70)
-        #screen.w = 200
-        #screen.h = 200
-        
-        #screen.x = 100
-        #screen.y = 10
-        #screen.window.activate()
-        
-        #Running = 1
-        #while Running:
-        #    Running = self.process.poll()
-        
-        #self.process.wait()
-        #screen.window.set_fullscreen(1)
-    
-    def SetPlayer(self,Player):
-        if sys.platform == 'win32':
-            if Player == 'VLC':
-                KeyName = 'SOFTWARE\\VideoLAN\\VLC'
-                AppName = ''
-                debug( "VLC")
-                
-            elif Player == 'WMP':
-                KeyName = 'Software\\Microsoft\\MediaPlayer\\Setup\\CreatedLinks'
-                AppName = 'AppName'
-                debug( "WMP")
-                
-            else: 
-                warn( 'Media player not defined.')
-            try:
-                
-                RegKey     = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,KeyName)
-                Executable = ExpandPath(_winreg.QueryValueEx(RegKey,AppName)[0])
-            except:
-                try:
-                    RegKey     = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,KeyName)
-                    Executable = ExpandPath(_winreg.QueryValueEx(RegKey,AppName)[0])
-                
-                except:
-                    warn( 'Sorry. Neither Windows Media Player nor VLC found in registry. Media playback disabelled.')
-                    return
-                
-#            if Player == 'VLC':
-#                Executable = Executable.replace('vlc','cvlc')
-#                
-            self.MediaPlayerExe = Executable + ' '
-            
-                
-            debug( self.MediaPlayerExe)
-            
+        debug("audio files under {0}: {1}. Playing the first one if there is one...".format(path, mediaFiles))
+
+        if mediaFiles:
+            self.player.play(os.path.join(path, mediaFiles[0]))
         else:
-            warn( 'Sorry. Currently, media other than *.wav files can only be played back on Windows 32 systems.')
+            warn("no media file found under {0}".format(path))
+
+
                 
-    def setVolume(self, v):
-        #tubifex.volume = v
-        self.volume = v
-        Sound.setGlobalVolume(v)
-        self.setVolumeText()        
+
         
         
-    def setVolumeText(self):
-        volumeText = "   " + str(int(10*self.volume))        
+    def setVolumeText(self, volume=None):
+        if not volume:
+            volume = self.player.getVolume()
+        volumeText = "   " + str(int(volume/10))
         try: self.volumeLabel.text = volumeText
         except: pass
         return volumeText
+
+    def volumeMax(self):
+        self.player.volumeMax()
+        self.setVolumeText(self.player.getVolume())
         
     def volumeDown(self):
-        if self.volume >= 0.1:
-            self.setVolume(self.volume - self.volumeIncrease)
+        self.player.volumeDown()
+        self.setVolumeText(self.player.getVolume())
         
     def volumeUp(self):
-        if self.volume < self.VOLUME_MAX:
-            self.setVolume(self.volume + self.volumeIncrease)
+        self.player.volumeUp()
+        self.setVolumeText(self.player.getVolume())
                  
     def back(self):
+
+        self.player.stop()
         l = self.path.split("/")
         
         if l:
@@ -611,7 +599,7 @@ class Talkshow(Widget):
     def home(self):
         if self.MenuFlag:
             self.MenuFlag = 0
-            self.pathPrefix = './Content/'
+            self.pathPrefix = self.config.CONTENT_DIRECTORY
             
         l = self.path = ""
         self.gridFromPath()
@@ -621,10 +609,11 @@ class Talkshow(Widget):
         if self.PlaybackFlag:
             items = ['Quit']
         else:
-            items = os.listdir(unicode(prefix+path))        
-            items = filter(lambda x: os.path.isdir(prefix + path + "/" + x), items)     
+            items = os.listdir(os.path.join(prefix, path))
+            items = [unicode(i) for i in items]
+            items = filter(lambda x: os.path.isdir(os.path.join(prefix, path, x)), items)
                
-        debug( 'Items: ' + str(items))
+        debug( 'Items: ' + unicode(items))
         return items
                 
     def gridFromPath(self, color_and_path = None):
@@ -651,7 +640,7 @@ class Talkshow(Widget):
             self.PlaybackCommand(path[path.rfind('/')+1:],self.PlaybakcProc)
             
             
-        debug("prefix=[{}] path =[{}]".format(self.pathPrefix, self.path))
+        debug("prefix=[{0}] path =[{1}]".format(self.pathPrefix, self.path))
         debug(self.pathPrefix + path)
         
         self.items =  self.subdirs(self.pathPrefix, self.path)
@@ -690,8 +679,8 @@ class Talkshow(Widget):
             
     def DrawAttention(self):
         debug( "drawattention?")
-        self.setVolume(Talkshow.VOLUME_MAX)
-        self.playPath(self.MenuPrefix + os.sep + 'Alarm')
+        self.volumeMax()
+        self.playPath(self.ALARM_DIRECTORY)
         
     def menu(self):
 
@@ -734,23 +723,23 @@ class Talkshow(Widget):
             #self.home()
             return 1
         elif Command == 'Very fast':
-            talkshow.TimeStep = 500
+            self.TimeStep = 500
             return 2
             
         elif Command == 'Very slow':
-            talkshow.TimeStep = 5000
+            self.TimeStep = 5000
             return 2
             
         elif Command == 'Faster':
-            talkshow.TimeStep = talkshow.TimeStep - TimeStepIncrement
+            self.TimeStep = self.TimeStep - TimeStepIncrement
             return 2
             
         elif Command == 'Slower':
-            talkshow.TimeStep = talkshow.TimeStep + TimeStepIncrement
+            self.TimeStep = self.TimeStep + TimeStepIncrement
             return 2
             
         elif Command == 'Default':
-            talkshow.TimeStep = TimeStepDefault
+            self.TimeStep = TimeStepDefault
             return 2
         
         elif Command == 'OK':
@@ -783,103 +772,106 @@ class Talkshow(Widget):
         
     def DoScan(self,TimeNow):
         NumButtons    = len(self.ButtonList)
-        
-        if Talkshow.ScanOn:
-            
-            if (self.CurrentField >= len(self.grid.fields)-1 and self.CurrentButton < NumButtons-1):
-                # select & highlight a button
-                
-                LastField = self.grid.fields[-1]
-                LastField.color = self.ColorOld
-                self.CurrentField = len(self.grid.fields) + 1
-                self.CurrentButton = self.CurrentButton + 1
-                
-                debug('Button ' + str(self.CurrentButton+1) + 'von' + str(len(self.ButtonList)))
-                #self.homeButton.bar.parent = None
-                Button     = self.ButtonList[self.CurrentButton]
-                LastButton = self.ButtonList[self.CurrentButton-1]
-                Button.bar     = Box(Button.container    , "bar", self.homeButton.w, self.homeButton.h, s=HighlightBarSettings)
-                LastButton.bar = Box(LastButton.container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
-                #b.x, b.y = 3,3
-                
-                
-            else:
-                # select & highlight a field (box)
-                
-                if self.CurrentButton >= NumButtons-1:
-                    self.ButtonList[self.CurrentButton].bar = Box(self.ButtonList[self.CurrentButton].container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
-                    self.CurrentField = -1
-                    self.CurrentButton = -1
-                    
-                self.CurrentField = self.CurrentField + 1
-                
-                Field     = self.grid.fields[self.CurrentField]
-                LastField = self.grid.fields[self.CurrentField-1]
-                a = self.grid
-                debug(str(self.CurrentField+1) + str(Field.text))
-                self.playName(unicode(self.pathPrefix + self.pathForField(Field.index)))
-            
-                #Field.startHighlight()
-                LastField.color = self.ColorOld
-                self.ColorOld = Field.color
-                Field.color = self.highlightingColours[self.CurrentField]
-                
-                
-            
+
+        if (self.CurrentField >= len(self.grid.fields)-1 and self.CurrentButton < NumButtons-1):
+            # select & highlight a button
+
+            LastField = self.grid.fields[-1]
+            LastField.color = self.ColorOld
+            self.CurrentField = len(self.grid.fields) + 1
+            self.CurrentButton = self.CurrentButton + 1
+
+            debug('Button ' + str(self.CurrentButton+1) + 'von' + str(len(self.ButtonList)))
+            #self.homeButton.bar.parent = None
+            Button     = self.ButtonList[self.CurrentButton]
+            LastButton = self.ButtonList[self.CurrentButton-1]
+            Button.bar     = Box(Button.container    , "bar", self.homeButton.w, self.homeButton.h, s=HighlightBarSettings)
+            LastButton.bar = Box(LastButton.container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
+            #b.x, b.y = 3,3
+
+
+        else:
+            # select & highlight a field (box)
+
+            if self.CurrentButton >= NumButtons-1:
+                self.ButtonList[self.CurrentButton].bar = Box(self.ButtonList[self.CurrentButton].container, "bar", self.homeButton.w, self.homeButton.h, s=BarSettings)
+                self.CurrentField = -1
+                self.CurrentButton = -1
+
+            self.CurrentField = self.CurrentField + 1
+
+            Field     = self.grid.fields[self.CurrentField]
+            LastField = self.grid.fields[self.CurrentField-1]
+            a = self.grid
+            debug(str(self.CurrentField+1) + str(Field.text))
+            self.playName(os.path.join(self.pathPrefix, self.pathForField(Field.index)))
+
+            #Field.startHighlight()
+            LastField.color = self.ColorOld
+            self.ColorOld = Field.color
+            Field.color = self.highlightingColours[self.CurrentField]
                 
             self.TimeOld  = TimeNow
 
-# boilerplate
-def tick():
-    
-    TimeNow = time.time()*1000
-    
-    if animated_property.T == 0.0:
-        # initializing
-        TimeOld = TimeNow
-    else:
-        TimeOld = talkshow.TimeOld
-        
-    animated_property.T = TimeNow
-    animated_property.AnimatedProperty.tick()
-    
-    if TimeNow - TimeOld > talkshow.TimeStep:
-        
-        talkshow.DoScan(TimeNow)
-        
-    return True
-              
+    # boilerplate
+    def tick(self):
 
-try: 
-    
+        TimeNow = time.time()*1000
 
+        if animated_property.T == 0.0:
+            # initializing
+            TimeOld = TimeNow
+        else:
+            TimeOld = self.TimeOld
+
+        animated_property.T = TimeNow
+        animated_property.AnimatedProperty.tick()
+
+        if Talkshow.ScanOn and (TimeNow - TimeOld > self.TimeStep):
+            self.DoScan(TimeNow)
+        return True
+
+
+def main():
+    """
+    Start of talkshow execution
+    """
+
+    logger.debug("initialising talkshow.")
+
+
+    # initialise screen heights and widths
     try:
         screenWidth = talkshowConfig.windowWidth
         screenHeight = talkshowConfig.windowHeight
-        if screenHeight == 0 or screenWidth == 0:        
+        if screenHeight == 0 or screenWidth == 0:
             screenWidth = int(style.page.width)
-            screenHeight = int(style.page.height)        
+            screenHeight = int(style.page.height)
     except:
         screenWidth = int(style.page.width)
         screenHeight = int(style.page.height)
-        
-    
-    screen = Screen("KommHelp Talkshow", "",screenWidth, screenHeight)
-    
-    
-    logger.debug("initialising talkshow.")
-    
-    
-    talkshow = Talkshow(screen)
-    
+
+    # screen object to be passed into Talkshow instance
+    screen = Screen("KommHelp Talkshow", "", screenWidth, screenHeight)
+
+
+    # initialise config and vlcPlayer
+    config = configClass()
+    player = vlcPlayer()
+
+    # talkshow object and handler
+    talkshow = Talkshow(config, screen, player)
     screen.event_handler = talkshow
-    
-    
-    
-    
-    pc = PeriodicCall(tick,0)
+
+    # periodicCall used for Scan mode
+    pc = PeriodicCall(talkshow.tick,0)
     pyglet.app.run()
 
-except(Exception):
-    logger.exception("exception!")
-    raise
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        #log all and any exceptions to file
+        logger.exception("exception! {0}".format(e))
+        raise
