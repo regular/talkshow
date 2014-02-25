@@ -7,6 +7,7 @@ from styleSettings import *
 
 import talkshowConfig
 conf = talkshowConfig.config()
+import talkshowUtils
 
 style = conf.style
 mydict = conf.parser.dict
@@ -323,7 +324,7 @@ class Button(Widget):
         if imagePath:
             
             #self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0
-            self.image = wrappers.Image(self, name, imagePath) #self.style.home.background_image[5:-2]
+            self.image = wrappers.Image(self, name, talkshowUtils.getRelativePath(imagePath)) #self.style.home.background_image[5:-2]
             
         
         else:

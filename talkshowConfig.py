@@ -49,6 +49,7 @@ CONTENT_DIRECTORY = "content"
 
 import os
 import parseCSS
+import talkshowUtils
 
 class config(object):    
     
@@ -62,6 +63,6 @@ class config(object):
     
     def __init__(self):
         self.CONTENT_DIRECTORY = CONTENT_DIRECTORY
-        self.path = os.path.join(STYLE_DIRECTORY, STYLE_FILENAME)
+        self.path = talkshowUtils.getRelativePath(os.path.join(STYLE_DIRECTORY, STYLE_FILENAME))
         self.parser = parseCSS.CSSParser(self.path)
         self.style = self.parser.style

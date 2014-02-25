@@ -9,6 +9,7 @@ debug = logger.debug
 info = logger.info
 warn = logger.warn
 error = logger.error
+import talkshowUtils
 info("Initialising talkshow. Version of Python: %s" % str(sys.version))
 
 
@@ -46,6 +47,7 @@ try:
 except Exception as e:
     logger.exception("exception! Details: {0}".format(e))
     raise
+
 
 
 
@@ -346,7 +348,7 @@ class Talkshow(Widget):
             self.ALARM_DIRECTORY = alarmDir
             info("Alarm sound is loaded from {0}".format(self.ALARM_DIRECTORY))
         else:
-            self.ALARM_DIRECTORY = 'alarm'
+            self.ALARM_DIRECTORY = talkshowUtils.getRelativePath('alarm')
             warn("Expected folder {1} under {0} does not exist. \
             Please create a folder named 'Alarm' under your content directory and place an alarm sound file into it. \
             Defaulting back to inbuilt alarm sound.".format(alarmDir, self.config.CONTENT_DIRECTORY))

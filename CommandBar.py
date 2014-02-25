@@ -6,6 +6,12 @@ from talkshowLogger import logger
 debug = logger.debug
 info = logger.info
 warn = logger.warn
+
+import talkshowUtils
+def loadImage(path):
+    newpath = talkshowUtils.getRelativePath(path)
+    return pyglet.image.load(newpath)
+
    
 class CommandBar(object):
     
@@ -59,7 +65,7 @@ class MenuBar(CommandBar):
             increaseY = int(self.style.warning.height) + self.imagePadding[0] + self.imagePadding[2]      
         
         # create the warning button properties
-        self.warningImage = pyglet.image.load(self.style.warning.background_image[5:-2])
+        self.warningImage = loadImage(self.style.warning.background_image[5:-2])
         self.warningHeight = int(self.style.warning.height)
         self.warningWidth = int(self.style.warning.width)
         self.warningX = x
@@ -70,7 +76,7 @@ class MenuBar(CommandBar):
         y = y + increaseY
     
         # create the home button properties
-        self.homeImage = pyglet.image.load(self.style.home.background_image[5:-2])
+        self.homeImage = loadImage(self.style.home.background_image[5:-2])
         self.homeHeight = int(self.style.home.height)
         self.homeWidth = int(self.style.home.width)
         self.homeX = x
@@ -81,7 +87,7 @@ class MenuBar(CommandBar):
         y = y + increaseY
     
         # create the back button properties
-        self.backImage = pyglet.image.load(self.style.back.background_image[5:-2])
+        self.backImage = loadImage(self.style.back.background_image[5:-2])
         self.backHeight = int(self.style.back.height)
         self.backWidth = int(self.style.back.width)
         self.backX = x
@@ -92,7 +98,7 @@ class MenuBar(CommandBar):
         y = y + increaseY
     
         # create the shutDown button properties        
-        self.shutDownImage = pyglet.image.load(self.style.shutDown.background_image[5:-2])
+        self.shutDownImage = loadImage(self.style.shutDown.background_image[5:-2])
         self.shutDownHeight = int(self.style.shutDown.height)
         self.shutDownWidth = int(self.style.shutDown.width)
         self.shutDownX = x
@@ -103,7 +109,7 @@ class MenuBar(CommandBar):
         y = y + increaseY    
         
         # create the settings button properties
-        self.settingsImage = pyglet.image.load(self.style.settings.background_image[5:-2])
+        self.settingsImage = loadImage(self.style.settings.background_image[5:-2])
         self.settingsHeight = int(self.style.settings.height)
         self.settingsWidth = int(self.style.settings.width)
         self.settingsX = x
@@ -129,7 +135,7 @@ class PlayerBar(CommandBar):
             increaseY = int(self.style.volumeDown.height)  + self.imagePadding[0] + self.imagePadding[2]             
         
         # create the volumeDown button properties
-        self.volumeDownImage = pyglet.image.load(self.style.volumeDown.background_image[5:-2])
+        self.volumeDownImage = loadImage(self.style.volumeDown.background_image[5:-2])
         self.volumeDownHeight = int(self.style.volumeDown.height)
         self.volumeDownWidth = int(self.style.volumeDown.width)
         self.volumeDownX = x
@@ -140,7 +146,7 @@ class PlayerBar(CommandBar):
         y = y + increaseY
     
         # create the volumeUp button properties
-        self.volumeUpImage = pyglet.image.load(self.style.volumeUp.background_image[5:-2])
+        self.volumeUpImage = loadImage(self.style.volumeUp.background_image[5:-2])
         self.volumeUpHeight = int(self.style.volumeUp.height)
         self.volumeUpWidth = int(self.style.volumeUp.width)
         self.volumeUpX = x
@@ -161,7 +167,7 @@ class PlayerBar(CommandBar):
         
     
         # create the playPrevious button properties
-        self.playPreviousImage = pyglet.image.load(self.style.playPrevious.background_image[5:-2])
+        self.playPreviousImage = loadImage(self.style.playPrevious.background_image[5:-2])
         self.playPreviousHeight = int(self.style.playPrevious.height)
         self.playPreviousWidth = int(self.style.playPrevious.width)
         self.playPreviousX = x
@@ -172,7 +178,7 @@ class PlayerBar(CommandBar):
         y = y + increaseY
     
         # create the play button properties
-        self.playImage = pyglet.image.load(self.style.play.background_image[5:-2])
+        self.playImage = loadImage(self.style.play.background_image[5:-2])
         self.playHeight = int(self.style.play.height)
         self.playWidth = int(self.style.play.width)
         self.playX = x
@@ -183,7 +189,7 @@ class PlayerBar(CommandBar):
         y = y + increaseY
     
         # create the playNext button properties
-        self.playNextImage = pyglet.image.load(self.style.playNext.background_image[5:-2])
+        self.playNextImage = loadImage(self.style.playNext.background_image[5:-2])
         self.playNextHeight = int(self.style.playNext.height)
         self.playNextWidth = int(self.style.playNext.width)
         self.playNextX = x
