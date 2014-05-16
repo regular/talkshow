@@ -1,3 +1,3 @@
-pyglet 
+http://pyglet.googlecode.com/archive/tip.zip
 tinycss 
 pyinstaller
