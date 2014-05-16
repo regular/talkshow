@@ -14,7 +14,13 @@ it is important that the python version is at least 2.7, but not version 3.somet
 For the rest of this document I will assume you installed python to `C:\Python27_32bit`. If that is not the case, please adapt the paths below to match you installation path.
 
 
-### Step 2: Install "pip" package manager, and with pip install the python dependencies "tinycss" and "pyglet" [pip]
+### Step 2A: install dependencies via simple script:
+
+run `python installDependencies.py` in a terminal, or double-click the `installDependencies.bat` file.
+
+If this worked, you can proceed to step 3. Otherwise, refer to the manual instructions in step 2A.
+
+### Step 2B: Install "pip" package manager, and with pip install the python dependencies "tinycss" and "pyglet" [pip]
 
 * download PIP for windows: [https://sites.google.com/site/pydatalog/python/pip-for-windows](https://sites.google.com/site/pydatalog/python/pip-for-windows)
 * open the downloaded file, it might open a few command line windows and ask you to press a key - just press enter and wait for it to download what's necessary. Point it to your python executable (for example `C:\Python27_32bit\python.exe`):
@@ -91,7 +97,7 @@ This will generate a `talkshow.exe` file under `dist\talkshow` containing all th
 If you have Python 2.7, download [pip](http://www.pip-installer.org/en/latest/installing.html) and then do
 
 ```
-pip install pyglet tinycss pyinstaller
+pip install -r requirements.txt
 ```
 
 if you have another version of python, install 32 bit Python 2.7, and then get Virtualenv from [here](http://www.verious.com/code/CharleneJiang/virtualenv-burrito/), and use it to make a python virtual environment for this version of python. Then, once in that shell, execute the above pip command (virtualenv comes bundled with pip).

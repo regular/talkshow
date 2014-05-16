@@ -1,0 +1,2 @@
+python installDependencies.py
+pause
