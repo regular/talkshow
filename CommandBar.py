@@ -1,3 +1,4 @@
+import sys
 import talkshowConfig
 import pyglet
 
@@ -10,7 +11,7 @@ warn = logger.warn
 import talkshowUtils
 def loadImage(path):
     newpath = talkshowUtils.getRelativePath(path)
-    return pyglet.image.load(newpath)
+    return pyglet.image.load(newpath.encode(sys.getfilesystemencoding()))
 
    
 class CommandBar(object):
