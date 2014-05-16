@@ -22,6 +22,8 @@ Talkshow open source software licensed under the terms of the GPLv3, which guara
 
 You should now be able to use run talkshow. In case of problems, please send me (joe.schaul@gmail.com) the debug.log file that was created next to the talkshow.exe file.
 
+Also have a look at the details for the current release at [the release link](https://github.com/jschaul/talkshow/releases)
+
 ### Advanced: install from source
 
 Please see [installation from source](doc/INSTALLATION_FROM_PYTHON_SOURCE.md) if you want to run the python source version of KommHELP talkshow or if you want to make changes to the code.
