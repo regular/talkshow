@@ -5,6 +5,11 @@ a = Analysis(['talkshow.py'],
              hookspath=None,
              runtime_hooks=None)
 
+# remove secondary pyconfig.h file to prevent error on windows
+for d in a.datas:
+    if 'pyconfig' in d[0]:
+        a.datas.remove(d)
+        break
 
 def Datafiles(*filenames, **kw):
     import os
