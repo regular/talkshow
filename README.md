@@ -16,7 +16,7 @@ Talkshow open source software licensed under the terms of the GPLv3, which guara
 
 ### Installation instructions when downloading windows exe:
 
-* Download the talkshow.exe file from [this link](https://github.com/jschaul/talkshow/releases/download/1.2.0/talkshow.exe)
+* Download the talkshow.exe file from [this link](https://github.com/jschaul/talkshow/releases/download/$VERSION/talkshow.exe)
 * Download and install the VLC media player from [this direct link](https://get.videolan.org/vlc/2.1.3/win32/vlc-2.1.3-win32.exe) or choose another version from [https://www.videolan.org/](https://www.videolan.org/). Please make sure it's 32 bit.
 * Create a folder called "content" next to the talkshow.exe file, and fill it with subfolders containing media files and optionally png images (see usage instructions below).
 
