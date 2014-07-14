@@ -1,8 +1,17 @@
 import weakref
-import sys
 from sys import getrefcount
 import string
-import pyglet
+import talkshowConfig
+
+
+style = talkshowConfig.config().parser.style
+
+from talkshowLogger import logger
+debug = logger.debug
+info = logger.info
+warn = logger.warn
+
+#?? pyglet.options['audio'] = ('directsound', 'openal', 'silent')
 from pyglet.gl import *
 from pyglet.media import *
 from rect import *
@@ -17,11 +26,13 @@ class Visible(object):
         self.w = w
         self.h = h
         self.name = name
-
+        
         self.__parent__ = None
         self.setParent(p)
         
         self.__class__.instanceCount += 1
+        
+        
         
     def __del__(self):
         self.__class__.instanceCount -= 1
@@ -132,23 +143,38 @@ class Rect(ColoredVisible):
         )
 
 class Screen(ColoredVisible):    
-    def __init__(self, name, device = "", w = 640, h = 480, color="#00007f"):
-        self.window = pyglet.window.Window(caption=name, fullscreen=1)
+    
+    def __init__(self, name, device = "", w = 800, h = 600, color=style.page.background_color):
+        try:
+            fullscreen = bool(talkshowConfig.fullScreen)
+        except:
+            fullscreen = False
+        
+        self.window = pyglet.window.Window(caption=name, fullscreen=fullscreen, resizable=True)
+        if not fullscreen: 
+            self.window.set_size(w, h)
+        ##?? self.window.push_handlers(pyglet.window.event.WindowEventLogger())
         ColoredVisible.__init__(self, None, name, 0, 0, self.w, self.h, color, opacity=1.0)
         self.__children__ = []
         self.event_handler = None
         
+        @self.window.event
         def on_resize(width, height):
             self.extent = width, height
             glViewport(0, 0, width, height)
 
             glMatrixMode(gl.GL_PROJECTION)
             glLoadIdentity()
-            gluOrtho2D(0, width, 0, height);    
+            gluOrtho2D(0, width, 0, height);          
             glScalef(1, -1, 1);
             glTranslatef(0, -height, 0);
 
             glMatrixMode(gl.GL_MODELVIEW)
+            
+            h = self.getHandlerMethod("onResize")
+            if h: h(width, height)
+            
+                        
 
         self.window.on_resize = on_resize
         
@@ -161,7 +187,7 @@ class Screen(ColoredVisible):
 
             for x in self.__children__:
                 x.draw()
-
+                
             glDisable(GL_BLEND)
                      
         buttonLUT = {
@@ -231,8 +257,9 @@ class Screen(ColoredVisible):
          
 class Image(ColoredVisible):
     def __init__(self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0):
+        debug(path)
         if path:
-            image = pyglet.image.load(path.encode(sys.getfilesystemencoding()))
+            image = pyglet.image.load(path)
             self.sprite = pyglet.sprite.Sprite(image)
         
         if w == None: w = self.sprite.width
@@ -275,8 +302,9 @@ class Text(ColoredVisible):
             text if text != None else name,
             font_name=font if font != None else "Helvetica",
             font_size=h,
+            anchor_y = 'center',
             x=0, y=0)
-
+        
         ColoredVisible.__init__(self, p, name, x, y, self.label.content_width, h, color, opacity)
 
     def _colorComponentGetter(i):
@@ -367,13 +395,15 @@ class ClippingContainer(Visible):
             glDisable(GL_SCISSOR_TEST)
         else:
             glScissor(old_scissor[0], old_scissor[1], old_scissor[2], old_scissor[3])
+            
                           
 class Group(ClippingContainer):
     instanceCount = 0
     
     def __init__(self, p, name, x=0, y=0, w=10, h=10, ox=0, oy=0, clipChildren=True):
         self._W, self._H = w, h
-        ClippingContainer.__init__(self, p, name, x, y, w, h, ox, oy, clipChildren)     
+        ClippingContainer.__init__(self, p, name, x, y, w, h*2 if hasattr(self,'fg') else h, ox, oy, clipChildren)     
+        
         self.__children__ = []
 
     def __addChild__(self, c):
@@ -443,7 +473,7 @@ class Viewport(ClippingContainer):
 class Video(Image):
     def __init__(self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0):
         self.player = Player()
-        self.source = load(path.encode(sys.getfilesystemencoding()))
+        self.source = load(path)
         self.player.queue(self.source)
         image = self.player.texture
         self.sprite = pyglet.sprite.Sprite(image)
@@ -499,7 +529,7 @@ class Sound(object):
     
     def __init__(self, device, path):
         self.player = Player()
-        self.source = load(path.encode(sys.getfilesystemencoding()))
+        self.source = load(path)
         self.player.queue(self.source)
         self.id = len(self._allSounds)
         self._allSounds.append(weakref.ref(self))
