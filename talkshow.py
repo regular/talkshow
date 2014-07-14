@@ -11,6 +11,7 @@ warn = logger.warn
 error = logger.error
 import talkshowUtils
 info("Initialising talkshow. Version of Python: %s" % str(sys.version))
+info("Your filesystem is using this encoding: %s" % str(sys.getfilesystemencoding()))
 
 
 try:
@@ -62,21 +63,6 @@ ORIENTATION = 1
 # Constants
 COLUMNS = 2
 MAX_ROW_NUMBER = 4
-
-def normalizePath(path):
-    path = path.replace("\\", "/")
-    while "//" in path:
-        path = path.replace("//", "/")
-    return path
-
-def WindowsPath(path):
-    path = path.replace("/", "\\")
-    # return absolute path
-    return os.getcwd() + path[1:]
-
-def ExpandPath(path):
-    path = os.path.expandvars(path[:-4])
-    return path
     
 def clamp(v, low=0.0, high=1.0):
     if v>high: v = high
@@ -515,7 +501,7 @@ class Talkshow(Widget):
             
             if f.index<len(self.items):
                 subfields = self.subdirs(self.pathPrefix, self.pathForField(f.index))
-                debug("subfields" + str(subfields))
+                debug("subfields {0}".format(subfields))
                 if len(subfields)>0:
                     #self.path = self.pathForField(f.index)     
                     self.grid.enterFIeld(f)
@@ -524,11 +510,11 @@ class Talkshow(Widget):
             #self.playPath_AudioRecorder(self.pathPrefix + self.pathForField(f.index))
     
     def iconForPath(self, path):
-        images = glob.glob(str(path) + "/*.png")
+        images = glob.glob1(path, "*.png")
         if images:
-            path = normalizePath(images[0])
-            i = wrappers.Image(None, path, path)
-            return i
+            imagePath = os.path.join(path, images[0])
+            image = wrappers.Image(None, name=imagePath, path=imagePath)
+            return image
         return None
           
     def cancelVideo(self):
@@ -536,20 +522,13 @@ class Talkshow(Widget):
             self.videoplayer.unref()
             self.videoplayer.parent = None
             self.videoplayer = None
-            
-    def playName(self, path):
-        
-        Name = glob.glob(path+"/*.nam")
-        if Name:
-            wave = normalizePath(Name[0])
-            s = self.sound  = Sound(0, wave)
-            s.speed=1
+
             
     def playPath(self, path):
 
         mediaPatterns = ["*.wav", "*.avi", "*.wmv", "*.mpg", "*.mp3", "*.wma", "*.asf", "*.midi", "*.aiff", "*.au", "*.m4a"]
         mediaPatterns_uppercase = [pattern.upper() for pattern in mediaPatterns]
-        mediaPatterns.extend(mediaPatterns_uppercase)
+        mediaPatterns += mediaPatterns_uppercase
         mediaFiles = []
         for pattern in mediaPatterns:
             mediaFiles += glob.glob1(path, pattern)
@@ -610,10 +589,9 @@ class Talkshow(Widget):
             items = ['Quit']
         else:
             items = os.listdir(os.path.join(prefix, path))
-            items = [unicode(i) for i in items]
             items = filter(lambda x: os.path.isdir(os.path.join(prefix, path, x)), items)
                
-        debug( 'Items: ' + unicode(items))
+        debug( 'Items: {0}'.format(items))
         return items
                 
     def gridFromPath(self, color_and_path = None):
@@ -804,7 +782,6 @@ class Talkshow(Widget):
             LastField = self.grid.fields[self.CurrentField-1]
             a = self.grid
             debug(str(self.CurrentField+1) + str(Field.text))
-            self.playName(os.path.join(self.pathPrefix, self.pathForField(Field.index)))
 
             #Field.startHighlight()
             LastField.color = self.ColorOld
