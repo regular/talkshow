@@ -30,11 +30,13 @@ class vlcPlayer(object):
 
 
     def play(self, path_to_media_file):
+        debug(u"attempting to play file: {0} of type: {1} and repr: {2}".format(path_to_media_file, type(path_to_media_file), repr(path_to_media_file)))
+        encoded_path=path_to_media_file.encode("UTF-8")
         if not os.path.isfile(path_to_media_file):
-            warn("This file: {0} does not exist. Full path: {1}".format(path_to_media_file, os.path.abspath(path_to_media_file)))
+            warn(u"This file: {0} does not exist. Full path: {1}".format(path_to_media_file, os.path.abspath(path_to_media_file)))
             return
         try:
-            media = self.instance.media_new(path_to_media_file)
+            media = self.instance.media_new(encoded_path)
         except Exception as e:
             logger.exception("exception! {0}".format(e))
             warn('NameError: %s (LibVLC %s)' % (sys.exc_info()[1],vlc.libvlc_get_version()))

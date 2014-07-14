@@ -277,10 +277,6 @@ class Talkshow(Widget):
 
 
         self.player = player
-
-        #self.player.play("content/Drei/nicht_nur_europa.wav")
-        
-        #self.DoLayout()
         
         self.count = 9    
         
@@ -510,7 +506,7 @@ class Talkshow(Widget):
             #self.playPath_AudioRecorder(self.pathPrefix + self.pathForField(f.index))
     
     def iconForPath(self, path):
-        images = glob.glob1(path, "*.png")
+        images = glob.glob1(path, u"*.png")
         if images:
             imagePath = os.path.join(path, images[0])
             image = wrappers.Image(None, name=imagePath, path=imagePath)
@@ -526,7 +522,7 @@ class Talkshow(Widget):
             
     def playPath(self, path):
 
-        mediaPatterns = ["*.wav", "*.avi", "*.wmv", "*.mpg", "*.mp3", "*.wma", "*.asf", "*.midi", "*.aiff", "*.au", "*.m4a"]
+        mediaPatterns = [u"*.wav", u"*.avi", u"*.wmv", u"*.mpg", u"*.mp3", u"*.wma", u"*.asf", u"*.midi", u"*.aiff", u"*.au", u"*.m4a"]
         mediaPatterns_uppercase = [pattern.upper() for pattern in mediaPatterns]
         mediaPatterns += mediaPatterns_uppercase
         mediaFiles = []
