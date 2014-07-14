@@ -259,7 +259,7 @@ class Image(ColoredVisible):
     def __init__(self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0):
         debug(path)
         if path:
-            image = pyglet.image.load(path.encode(sys.getfilesystemencoding()))
+            image = pyglet.image.load(path)
             self.sprite = pyglet.sprite.Sprite(image)
         
         if w == None: w = self.sprite.width
@@ -473,7 +473,7 @@ class Viewport(ClippingContainer):
 class Video(Image):
     def __init__(self, p, name, path, x=0, y=0, w=None, h=None, color="#ffffff", opacity=1.0):
         self.player = Player()
-        self.source = load(path.encode(sys.getfilesystemencoding()))
+        self.source = load(path)
         self.player.queue(self.source)
         image = self.player.texture
         self.sprite = pyglet.sprite.Sprite(image)
@@ -529,7 +529,7 @@ class Sound(object):
     
     def __init__(self, device, path):
         self.player = Player()
-        self.source = load(path.encode(sys.getfilesystemencoding()))
+        self.source = load(path)
         self.player.queue(self.source)
         self.id = len(self._allSounds)
         self._allSounds.append(weakref.ref(self))
